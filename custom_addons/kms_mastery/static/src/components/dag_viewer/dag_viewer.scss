@@ -1,0 +1,58 @@
+// KMS Mastery - DAG Viewer Styles
+
+.kms_dag_viewer {
+    min-height: 500px;
+}
+
+.kms_dag_header {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+
+    h4 {
+        font-weight: 600;
+        color: #1e293b;
+    }
+}
+
+.kms_dag_legend {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.kms_legend_dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid;
+}
+
+.kms_legend_locked {
+    background-color: #94a3b8;
+    border-color: #64748b;
+}
+
+.kms_legend_unlocked {
+    background-color: #3b82f6;
+    border-color: #1d4ed8;
+}
+
+.kms_legend_mastered {
+    background-color: #22c55e;
+    border-color: #15803d;
+}
+
+.kms_dag_canvas_wrapper {
+    background: radial-gradient(circle at center, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.kms_dag_canvas {
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.kms_dag_hint {
+    opacity: 0.7;
+    font-size: 0.75rem;
+    pointer-events: none;
+}

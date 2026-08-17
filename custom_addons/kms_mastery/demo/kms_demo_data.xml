@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================================ -->
+        <!--                     DEMO USERS                                -->
+        <!-- ============================================================ -->
+
+        <record id="demo_instructor_user" model="res.users">
+            <field name="name">Prof. Sarah Chen</field>
+            <field name="login">kms_instructor</field>
+            <field name="password">kms_instructor</field>
+            <field name="group_ids" eval="[
+                (4, ref('base.group_user')),
+                (4, ref('kms_mastery.group_kms_instructor')),
+            ]"/>
+        </record>
+
+        <record id="demo_learner_user" model="res.users">
+            <field name="name">Alex Rivera</field>
+            <field name="login">kms_learner</field>
+            <field name="password">kms_learner</field>
+            <field name="group_ids" eval="[
+                (4, ref('base.group_user')),
+                (4, ref('kms_mastery.group_kms_learner')),
+            ]"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                   KNOWLEDGE NODES (Linear DAG)                -->
+        <!-- ============================================================ -->
+
+        <!-- Node 1: Variables (root node — no prerequisites) -->
+        <record id="demo_node_variables" model="kms.node">
+            <field name="name">Variables</field>
+            <field name="sequence">10</field>
+            <field name="mastery_threshold">0.9</field>
+            <field name="description"><![CDATA[
+<h3>Variables in Python</h3>
+<p>Variables are used to store data values. Python has no command for declaring a variable — a variable is created the moment you first assign a value to it.</p>
+<ul>
+    <li>Variable names are case-sensitive</li>
+    <li>Must start with a letter or underscore</li>
+    <li>Can contain alpha-numeric characters and underscores</li>
+</ul>
+<pre><code>x = 5
+name = "Alice"
+is_active = True</code></pre>
+            ]]></field>
+        </record>
+
+        <!-- Node 2: Data Types (requires Variables) -->
+        <record id="demo_node_datatypes" model="kms.node">
+            <field name="name">Data Types</field>
+            <field name="sequence">20</field>
+            <field name="mastery_threshold">0.9</field>
+            <field name="prerequisite_ids" eval="[(4, ref('demo_node_variables'))]"/>
+            <field name="description"><![CDATA[
+<h3>Python Data Types</h3>
+<p>Python has several built-in data types:</p>
+<ul>
+    <li><strong>int</strong>: Integer numbers (e.g., 42)</li>
+    <li><strong>float</strong>: Decimal numbers (e.g., 3.14)</li>
+    <li><strong>str</strong>: Text strings (e.g., "hello")</li>
+    <li><strong>bool</strong>: Boolean values (True/False)</li>
+    <li><strong>list</strong>: Ordered, mutable collections</li>
+    <li><strong>dict</strong>: Key-value mappings</li>
+</ul>
+<p>Use <code>type()</code> to check the type of a variable.</p>
+            ]]></field>
+        </record>
+
+        <!-- Node 3: Control Flow (requires Data Types) -->
+        <record id="demo_node_controlflow" model="kms.node">
+            <field name="name">Control Flow</field>
+            <field name="sequence">30</field>
+            <field name="mastery_threshold">0.9</field>
+            <field name="prerequisite_ids" eval="[(4, ref('demo_node_datatypes'))]"/>
+            <field name="description"><![CDATA[
+<h3>Control Flow in Python</h3>
+<p>Control flow statements determine the order in which code is executed:</p>
+<ul>
+    <li><strong>if/elif/else</strong>: Conditional branching</li>
+    <li><strong>for</strong>: Iterating over sequences</li>
+    <li><strong>while</strong>: Loop with condition</li>
+    <li><strong>break/continue</strong>: Loop control</li>
+</ul>
+<pre><code>for i in range(10):
+    if i % 2 == 0:
+        print(f"{i} is even")
+    else:
+        print(f"{i} is odd")</code></pre>
+            ]]></field>
+        </record>
+
+        <!-- Node 4: Functions (requires Control Flow) -->
+        <record id="demo_node_functions" model="kms.node">
+            <field name="name">Functions</field>
+            <field name="sequence">40</field>
+            <field name="mastery_threshold">0.9</field>
+            <field name="prerequisite_ids" eval="[(4, ref('demo_node_controlflow'))]"/>
+            <field name="description"><![CDATA[
+<h3>Functions in Python</h3>
+<p>Functions are reusable blocks of code that perform a specific task:</p>
+<ul>
+    <li>Defined using the <code>def</code> keyword</li>
+    <li>Can accept parameters and return values</li>
+    <li>Support default arguments and *args/**kwargs</li>
+    <li>Lambda functions for short anonymous functions</li>
+</ul>
+<pre><code>def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}!"
+
+result = greet("Alice")  # "Hello, Alice!"</code></pre>
+            ]]></field>
+        </record>
+
+        <!-- Node 5: Modules (requires Functions) -->
+        <record id="demo_node_modules" model="kms.node">
+            <field name="name">Modules</field>
+            <field name="sequence">50</field>
+            <field name="mastery_threshold">0.9</field>
+            <field name="prerequisite_ids" eval="[(4, ref('demo_node_functions'))]"/>
+            <field name="description"><![CDATA[
+<h3>Python Modules</h3>
+<p>Modules let you organize and reuse code across files:</p>
+<ul>
+    <li><code>import module_name</code>: Import an entire module</li>
+    <li><code>from module import function</code>: Import specific items</li>
+    <li><code>import module as alias</code>: Import with alias</li>
+    <li>The <code>__name__</code> variable and <code>if __name__ == "__main__"</code> guard</li>
+</ul>
+<p>Python's standard library includes hundreds of useful modules like <code>os</code>, <code>sys</code>, <code>json</code>, <code>math</code>, etc.</p>
+            ]]></field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                   QUIZ QUESTIONS                              -->
+        <!-- ============================================================ -->
+
+        <!-- Variables: Question 1 -->
+        <record id="demo_q_var_1" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_variables"/>
+            <field name="question_text"><![CDATA[<p>Which of the following is a valid Python variable name?</p>]]></field>
+            <field name="type">mcq</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_var_1_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_var_1"/>
+            <field name="text">2name</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_var_1_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_var_1"/>
+            <field name="text">my-var</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_var_1_c" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_var_1"/>
+            <field name="text">_count</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Variables: Question 2 -->
+        <record id="demo_q_var_2" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_variables"/>
+            <field name="question_text"><![CDATA[<p>Python variables are case-sensitive.</p>]]></field>
+            <field name="type">tf</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_var_2_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_var_2"/>
+            <field name="text">True</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_var_2_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_var_2"/>
+            <field name="text">False</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Data Types: Question 1 -->
+        <record id="demo_q_dt_1" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_datatypes"/>
+            <field name="question_text"><![CDATA[<p>What is the type of the value <code>3.14</code>?</p>]]></field>
+            <field name="type">mcq</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_dt_1_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_dt_1"/>
+            <field name="text">int</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_dt_1_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_dt_1"/>
+            <field name="text">float</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_dt_1_c" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_dt_1"/>
+            <field name="text">str</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Data Types: Question 2 -->
+        <record id="demo_q_dt_2" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_datatypes"/>
+            <field name="question_text"><![CDATA[<p>Which function is used to check the type of a variable?</p>]]></field>
+            <field name="type">mcq</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_dt_2_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_dt_2"/>
+            <field name="text">typeof()</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_dt_2_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_dt_2"/>
+            <field name="text">type()</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_dt_2_c" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_dt_2"/>
+            <field name="text">isinstance()</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Control Flow: Question 1 -->
+        <record id="demo_q_cf_1" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_controlflow"/>
+            <field name="question_text"><![CDATA[<p>Which keyword is used for conditional branching in Python?</p>]]></field>
+            <field name="type">mcq</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_cf_1_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_1"/>
+            <field name="text">switch</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_cf_1_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_1"/>
+            <field name="text">if</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_cf_1_c" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_1"/>
+            <field name="text">case</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Control Flow: Question 2 -->
+        <record id="demo_q_cf_2" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_controlflow"/>
+            <field name="question_text"><![CDATA[<p>The <code>break</code> statement exits the current loop entirely.</p>]]></field>
+            <field name="type">tf</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_cf_2_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_2"/>
+            <field name="text">True</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_cf_2_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_2"/>
+            <field name="text">False</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Control Flow: Question 3 -->
+        <record id="demo_q_cf_3" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_controlflow"/>
+            <field name="question_text"><![CDATA[<p>What does <code>range(5)</code> generate?</p>]]></field>
+            <field name="type">mcq</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="demo_a_cf_3_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_3"/>
+            <field name="text">Numbers 1 to 5</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_cf_3_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_3"/>
+            <field name="text">Numbers 0 to 4</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_cf_3_c" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_cf_3"/>
+            <field name="text">Numbers 0 to 5</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Functions: Question 1 -->
+        <record id="demo_q_fn_1" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_functions"/>
+            <field name="question_text"><![CDATA[<p>Which keyword is used to define a function in Python?</p>]]></field>
+            <field name="type">mcq</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_fn_1_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_fn_1"/>
+            <field name="text">function</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_fn_1_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_fn_1"/>
+            <field name="text">def</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_fn_1_c" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_fn_1"/>
+            <field name="text">func</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Functions: Question 2 -->
+        <record id="demo_q_fn_2" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_functions"/>
+            <field name="question_text"><![CDATA[<p>A function without a <code>return</code> statement returns <code>None</code>.</p>]]></field>
+            <field name="type">tf</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_fn_2_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_fn_2"/>
+            <field name="text">True</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_fn_2_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_fn_2"/>
+            <field name="text">False</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Modules: Question 1 -->
+        <record id="demo_q_mod_1" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_modules"/>
+            <field name="question_text"><![CDATA[<p>Which statement correctly imports the <code>math</code> module?</p>]]></field>
+            <field name="type">mcq</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_mod_1_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_mod_1"/>
+            <field name="text">include math</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_mod_1_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_mod_1"/>
+            <field name="text">import math</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_mod_1_c" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_mod_1"/>
+            <field name="text">require math</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Modules: Question 2 -->
+        <record id="demo_q_mod_2" model="kms.quiz.question">
+            <field name="node_id" ref="demo_node_modules"/>
+            <field name="question_text"><![CDATA[<p>The <code>if __name__ == "__main__"</code> guard prevents code from running when the module is imported.</p>]]></field>
+            <field name="type">tf</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="demo_a_mod_2_a" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_mod_2"/>
+            <field name="text">True</field>
+            <field name="is_correct" eval="True"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_a_mod_2_b" model="kms.quiz.answer">
+            <field name="question_id" ref="demo_q_mod_2"/>
+            <field name="text">False</field>
+            <field name="is_correct" eval="False"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                     FLASHCARDS                                -->
+        <!-- ============================================================ -->
+
+        <!-- Variables Flashcards -->
+        <record id="demo_fc_var_1" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_variables"/>
+            <field name="front"><![CDATA[<p>What are the rules for naming Python variables?</p>]]></field>
+            <field name="back"><![CDATA[<ul><li>Must start with a letter or underscore</li><li>Can contain letters, digits, and underscores</li><li>Case-sensitive</li><li>Cannot be a Python keyword</li></ul>]]></field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_fc_var_2" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_variables"/>
+            <field name="front"><![CDATA[<p>How do you create a variable in Python?</p>]]></field>
+            <field name="back"><![CDATA[<p>Simply assign a value: <code>x = 5</code>. No declaration keyword needed.</p>]]></field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Data Types Flashcards -->
+        <record id="demo_fc_dt_1" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_datatypes"/>
+            <field name="front"><![CDATA[<p>Name 4 basic Python data types.</p>]]></field>
+            <field name="back"><![CDATA[<p><code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code></p>]]></field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_fc_dt_2" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_datatypes"/>
+            <field name="front"><![CDATA[<p>How do you check the type of a variable?</p>]]></field>
+            <field name="back"><![CDATA[<p>Use <code>type(variable)</code>. For type checking, use <code>isinstance(variable, type)</code>.</p>]]></field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Control Flow Flashcards -->
+        <record id="demo_fc_cf_1" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_controlflow"/>
+            <field name="front"><![CDATA[<p>What is the difference between <code>break</code> and <code>continue</code>?</p>]]></field>
+            <field name="back"><![CDATA[<p><code>break</code> exits the loop entirely. <code>continue</code> skips the rest of the current iteration and moves to the next.</p>]]></field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_fc_cf_2" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_controlflow"/>
+            <field name="front"><![CDATA[<p>What does <code>range(2, 10, 3)</code> produce?</p>]]></field>
+            <field name="back"><![CDATA[<p>The sequence: 2, 5, 8 (start=2, stop=10, step=3)</p>]]></field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Functions Flashcards -->
+        <record id="demo_fc_fn_1" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_functions"/>
+            <field name="front"><![CDATA[<p>What is the syntax for a lambda function?</p>]]></field>
+            <field name="back"><![CDATA[<p><code>lambda arguments: expression</code><br/>Example: <code>square = lambda x: x ** 2</code></p>]]></field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_fc_fn_2" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_functions"/>
+            <field name="front"><![CDATA[<p>What do *args and **kwargs do?</p>]]></field>
+            <field name="back"><![CDATA[<p><code>*args</code> collects positional arguments into a tuple. <code>**kwargs</code> collects keyword arguments into a dictionary.</p>]]></field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Modules Flashcards -->
+        <record id="demo_fc_mod_1" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_modules"/>
+            <field name="front"><![CDATA[<p>What are the three ways to import a module?</p>]]></field>
+            <field name="back"><![CDATA[<ol><li><code>import module</code></li><li><code>from module import item</code></li><li><code>import module as alias</code></li></ol>]]></field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="demo_fc_mod_2" model="kms.flashcard">
+            <field name="node_id" ref="demo_node_modules"/>
+            <field name="front"><![CDATA[<p>What is the purpose of <code>__name__ == "__main__"</code>?</p>]]></field>
+            <field name="back"><![CDATA[<p>It guards code that should only run when the file is executed directly, not when imported as a module.</p>]]></field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                      COURSE                                   -->
+        <!-- ============================================================ -->
+
+        <record id="demo_course_python" model="kms.course">
+            <field name="name">Python Fundamentals</field>
+            <field name="sequence">10</field>
+            <field name="instructor_id" ref="demo_instructor_user"/>
+            <field name="description"><![CDATA[
+<h3>Python Fundamentals</h3>
+<p>A comprehensive introduction to Python programming covering variables,
+data types, control flow, functions, and modules. Master each concept
+through quizzes and reinforce your knowledge with spaced-repetition flashcards.</p>
+            ]]></field>
+            <field name="node_ids" eval="[
+                (4, ref('demo_node_variables')),
+                (4, ref('demo_node_datatypes')),
+                (4, ref('demo_node_controlflow')),
+                (4, ref('demo_node_functions')),
+                (4, ref('demo_node_modules')),
+            ]"/>
+            <field name="learner_ids" eval="[(4, ref('demo_learner_user'))]"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--                      MILESTONE                                -->
+        <!-- ============================================================ -->
+
+        <record id="demo_milestone_calculator" model="kms.milestone">
+            <field name="name">Build a CLI Calculator</field>
+            <field name="sequence">10</field>
+            <field name="course_id" ref="demo_course_python"/>
+            <field name="instructor_id" ref="demo_instructor_user"/>
+            <field name="node_ids" eval="[
+                (4, ref('demo_node_controlflow')),
+                (4, ref('demo_node_functions')),
+            ]"/>
+            <field name="description"><![CDATA[
+<h3>Milestone: Build a CLI Calculator</h3>
+<p>Create a command-line calculator application that:</p>
+<ol>
+    <li>Accepts two numbers and an operator (+, -, *, /) from the user</li>
+    <li>Uses functions to perform each operation</li>
+    <li>Handles division by zero gracefully</li>
+    <li>Loops until the user types "quit"</li>
+    <li>Validates user input</li>
+</ol>
+<p>Submit your Python file (.py) for instructor review.</p>
+            ]]></field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!--            INITIAL LEARNER NODE PROGRESS                      -->
+        <!-- ============================================================ -->
+
+        <!-- Alex Rivera starts with only "Variables" unlocked (root node) -->
+        <record id="demo_user_node_var" model="kms.user.node">
+            <field name="user_id" ref="demo_learner_user"/>
+            <field name="node_id" ref="demo_node_variables"/>
+            <field name="state">unlocked</field>
+        </record>
+        <record id="demo_user_node_dt" model="kms.user.node">
+            <field name="user_id" ref="demo_learner_user"/>
+            <field name="node_id" ref="demo_node_datatypes"/>
+            <field name="state">locked</field>
+        </record>
+        <record id="demo_user_node_cf" model="kms.user.node">
+            <field name="user_id" ref="demo_learner_user"/>
+            <field name="node_id" ref="demo_node_controlflow"/>
+            <field name="state">locked</field>
+        </record>
+        <record id="demo_user_node_fn" model="kms.user.node">
+            <field name="user_id" ref="demo_learner_user"/>
+            <field name="node_id" ref="demo_node_functions"/>
+            <field name="state">locked</field>
+        </record>
+        <record id="demo_user_node_mod" model="kms.user.node">
+            <field name="user_id" ref="demo_learner_user"/>
+            <field name="node_id" ref="demo_node_modules"/>
+            <field name="state">locked</field>
+        </record>
+
+        <!-- Learner milestone record (pending) -->
+        <record id="demo_user_milestone_calc" model="kms.user.milestone">
+            <field name="user_id" ref="demo_learner_user"/>
+            <field name="milestone_id" ref="demo_milestone_calculator"/>
+            <field name="state">pending</field>
+        </record>
+
+    </data>
+</odoo>

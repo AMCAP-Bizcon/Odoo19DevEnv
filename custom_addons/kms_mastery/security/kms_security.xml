@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Module Category -->
+    <record id="module_category_kms" model="ir.module.category">
+        <field name="name">KMS Mastery Learning</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <!-- Group Privilege -->
+    <record id="res_groups_privilege_kms" model="res.groups.privilege">
+        <field name="name">KMS Mastery</field>
+        <field name="category_id" ref="module_category_kms"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Security Groups -->
+    <record id="group_kms_learner" model="res.groups">
+        <field name="name">Learner</field>
+        <field name="privilege_id" ref="res_groups_privilege_kms"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="group_kms_instructor" model="res.groups">
+        <field name="name">Instructor</field>
+        <field name="privilege_id" ref="res_groups_privilege_kms"/>
+        <field name="sequence">20</field>
+        <field name="implied_ids" eval="[(4, ref('group_kms_learner'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- Record Rules -->
+    <data noupdate="1">
+
+        <!-- Learner: own progress records only -->
+        <record id="rule_user_node_learner" model="ir.rule">
+            <field name="name">KMS: Learner own node progress</field>
+            <field name="model_id" ref="model_kms_user_node"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_user_flashcard_learner" model="ir.rule">
+            <field name="name">KMS: Learner own flashcard progress</field>
+            <field name="model_id" ref="model_kms_user_flashcard"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_user_milestone_learner" model="ir.rule">
+            <field name="name">KMS: Learner own milestone submissions</field>
+            <field name="model_id" ref="model_kms_user_milestone"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+        </record>
+
+        <!-- Learner: only enrolled courses -->
+        <record id="rule_course_learner" model="ir.rule">
+            <field name="name">KMS: Learner enrolled courses only</field>
+            <field name="model_id" ref="model_kms_course"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('learner_ids', 'in', user.id)]</field>
+        </record>
+
+        <!-- Learner: can read all nodes (titles visible for DAG) -->
+        <record id="rule_node_learner" model="ir.rule">
+            <field name="name">KMS: Learner can read all nodes</field>
+            <field name="model_id" ref="model_kms_node"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Learner: own quiz attempts -->
+        <record id="rule_quiz_attempt_learner" model="ir.rule">
+            <field name="name">KMS: Learner own quiz attempts</field>
+            <field name="model_id" ref="model_kms_quiz_attempt"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_quiz_attempt_line_learner" model="ir.rule">
+            <field name="name">KMS: Learner own quiz attempt lines</field>
+            <field name="model_id" ref="model_kms_quiz_attempt_line"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('attempt_id.user_id', '=', user.id)]</field>
+        </record>
+
+        <!-- Instructor: full access to all records -->
+        <record id="rule_course_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor full course access</field>
+            <field name="model_id" ref="model_kms_course"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_node_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor full node access</field>
+            <field name="model_id" ref="model_kms_node"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_user_node_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor all user node progress</field>
+            <field name="model_id" ref="model_kms_user_node"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_user_flashcard_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor all user flashcard progress</field>
+            <field name="model_id" ref="model_kms_user_flashcard"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_user_milestone_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor all user milestones</field>
+            <field name="model_id" ref="model_kms_user_milestone"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_quiz_attempt_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor all quiz attempts</field>
+            <field name="model_id" ref="model_kms_quiz_attempt"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_quiz_attempt_line_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor all quiz attempt lines</field>
+            <field name="model_id" ref="model_kms_quiz_attempt_line"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+    </data>
+</odoo>

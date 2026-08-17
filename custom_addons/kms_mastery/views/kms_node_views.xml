@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Node Search View -->
+    <record id="kms_node_view_search" model="ir.ui.view">
+        <field name="name">kms.node.view.search</field>
+        <field name="model">kms.node</field>
+        <field name="arch" type="xml">
+            <search string="Search Nodes">
+                <field name="name"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <filter string="Has Prerequisites" name="has_prereqs" domain="[('prerequisite_ids', '!=', False)]"/>
+                <filter string="Root Nodes" name="root_nodes" domain="[('prerequisite_ids', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Node Tree/List View -->
+    <record id="kms_node_view_list" model="ir.ui.view">
+        <field name="name">kms.node.view.list</field>
+        <field name="model">kms.node</field>
+        <field name="arch" type="xml">
+            <list string="Knowledge Nodes">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="quiz_question_count" string="Questions"/>
+                <field name="flashcard_count" string="Flashcards"/>
+                <field name="mastery_threshold" widget="percentage"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Node Form View -->
+    <record id="kms_node_view_form" model="ir.ui.view">
+        <field name="name">kms.node.view.form</field>
+        <field name="model">kms.node</field>
+        <field name="arch" type="xml">
+            <form string="Knowledge Node">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-question-circle"
+                                name="%(kms_mastery.kms_quiz_question_action)d"
+                                type="action"
+                                context="{'default_node_id': id, 'search_default_node_id': id}">
+                            <field name="quiz_question_count" widget="statinfo" string="Questions"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-clone"
+                                name="%(kms_mastery.kms_flashcard_action)d"
+                                type="action"
+                                context="{'default_node_id': id, 'search_default_node_id': id}">
+                            <field name="flashcard_count" widget="statinfo" string="Flashcards"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Variables and Data Types"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="mastery_threshold" widget="percentage"/>
+                            <field name="resource_url" widget="url"/>
+                            <field name="sequence"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="prerequisite_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Learning Content" name="content">
+                            <field name="description" placeholder="Rich text learning content..."/>
+                            <separator string="Attachments"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Quiz Questions" name="quiz">
+                            <field name="quiz_question_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="question_text"/>
+                                    <field name="type"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Flashcards" name="flashcards">
+                            <field name="flashcard_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="front"/>
+                                    <field name="back"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Node Action -->
+    <record id="kms_node_action" model="ir.actions.act_window">
+        <field name="name">Knowledge Nodes</field>
+        <field name="res_model">kms.node</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_node_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first knowledge node
+            </p>
+            <p>
+                Knowledge nodes are the building blocks of your learning path.
+                Connect them with prerequisites to form a Directed Acyclic Graph.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kms_mastery.DagViewer">
+        <div class="kms_dag_viewer d-flex flex-column h-100">
+            <!-- Header -->
+            <div class="kms_dag_header d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-white">
+                <h4 class="mb-0">
+                    <i class="fa fa-sitemap me-2 text-primary"/>
+                    Knowledge DAG
+                </h4>
+                <div class="kms_dag_legend d-flex gap-3 align-items-center">
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="kms_legend_dot kms_legend_locked"/>
+                        Locked
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="kms_legend_dot kms_legend_unlocked"/>
+                        Unlocked
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="kms_legend_dot kms_legend_mastered"/>
+                        Mastered
+                    </span>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="kms_dag_canvas_wrapper flex-grow-1 position-relative bg-light">
+                <t t-if="state.loading">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </t>
+                <canvas t-ref="dagCanvas"
+                        class="kms_dag_canvas w-100 h-100"
+                        t-att-class="{'d-none': state.loading}"
+                        style="cursor: grab;"/>
+                <div class="kms_dag_hint position-absolute bottom-0 end-0 p-2 text-muted small">
+                    <i class="fa fa-info-circle me-1"/>
+                    Drag to move nodes • Double-click to open • Scroll to zoom • Right-drag to pan
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

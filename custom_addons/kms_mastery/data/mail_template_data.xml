@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="milestone_reminder_template" model="mail.template">
+            <field name="name">KMS: Milestone Evaluation Reminder</field>
+            <field name="model_id" ref="kms_mastery.model_kms_user_milestone"/>
+            <field name="subject">Reminder: Milestone '{{ object.milestone_id.name }}' is awaiting evaluation</field>
+            <field name="use_default_to" eval="True"/>
+            <field name="description">Daily reminder for ungraded milestone submissions</field>
+            <field name="body_html" type="html">
+<table border="0" cellpadding="0" style="padding-top: 16px; background-color: #F1F1F1; color: #454748; width: 100%; border-collapse:separate;">
+    <tr><td align="center">
+        <table border="0" width="590" cellpadding="0" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;" summary="o_mail_notification">
+            <tbody>
+                <tr>
+                    <td align="center" style="min-width: 590px;">
+                        <table width="590" border="0" cellpadding="0" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                            <tr><td valign="middle">
+                                <div>
+                                    <strong>Milestone Evaluation Reminder</strong>
+                                </div>
+                                <br/>
+                                <div>
+                                    The milestone <strong><t t-out="object.milestone_id.name or ''">Milestone Name</t></strong>
+                                    submitted by <strong><t t-out="object.user_id.name or ''">Learner Name</t></strong>
+                                    is still awaiting evaluation.
+                                </div>
+                                <br/>
+                                <div>
+                                    <strong>Course:</strong> <t t-out="object.milestone_id.course_id.name or ''">Course Name</t>
+                                </div>
+                                <div t-if="object.submission_date">
+                                    <strong>Submitted on:</strong> <t t-out="object.submission_date">2024-01-01</t>
+                                </div>
+                                <br/>
+                                <div>
+                                    Please review this submission at your earliest convenience.
+                                </div>
+                            </td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </td></tr>
+</table>
+            </field>
+        </record>
+
+    </data>
+</odoo>

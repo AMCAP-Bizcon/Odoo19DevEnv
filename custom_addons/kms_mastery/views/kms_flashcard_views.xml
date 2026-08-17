@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Flashcard Search View -->
+    <record id="kms_flashcard_view_search" model="ir.ui.view">
+        <field name="name">kms.flashcard.view.search</field>
+        <field name="model">kms.flashcard</field>
+        <field name="arch" type="xml">
+            <search string="Search Flashcards">
+                <field name="front"/>
+                <field name="node_id"/>
+                <group>
+                    <filter string="Node" name="group_node" context="{'group_by': 'node_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Flashcard List View -->
+    <record id="kms_flashcard_view_list" model="ir.ui.view">
+        <field name="name">kms.flashcard.view.list</field>
+        <field name="model">kms.flashcard</field>
+        <field name="arch" type="xml">
+            <list string="Flashcards">
+                <field name="sequence" widget="handle"/>
+                <field name="node_id"/>
+                <field name="front"/>
+                <field name="back"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Flashcard Form View -->
+    <record id="kms_flashcard_view_form" model="ir.ui.view">
+        <field name="name">kms.flashcard.view.form</field>
+        <field name="model">kms.flashcard</field>
+        <field name="arch" type="xml">
+            <form string="Flashcard">
+                <sheet>
+                    <group>
+                        <field name="node_id"/>
+                        <field name="sequence"/>
+                    </group>
+                    <separator string="Front (Question)"/>
+                    <field name="front"/>
+                    <separator string="Back (Answer)"/>
+                    <field name="back"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Flashcard Action -->
+    <record id="kms_flashcard_action" model="ir.actions.act_window">
+        <field name="name">Flashcards</field>
+        <field name="res_model">kms.flashcard</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_flashcard_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create flashcards for spaced repetition
+            </p>
+            <p>
+                Flashcards are automatically assigned to learners when they master a node.
+                Reviews are scheduled using the FSRS-5 algorithm.
+            </p>
+        </field>
+    </record>
+
+</odoo>

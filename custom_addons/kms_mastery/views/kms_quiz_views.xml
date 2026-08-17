@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Quiz Question Search View -->
+    <record id="kms_quiz_question_view_search" model="ir.ui.view">
+        <field name="name">kms.quiz.question.view.search</field>
+        <field name="model">kms.quiz.question</field>
+        <field name="arch" type="xml">
+            <search string="Search Questions">
+                <field name="question_text"/>
+                <field name="node_id"/>
+                <field name="type"/>
+                <group>
+                    <filter string="Node" name="group_node" context="{'group_by': 'node_id'}"/>
+                    <filter string="Type" name="group_type" context="{'group_by': 'type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Quiz Question List View -->
+    <record id="kms_quiz_question_view_list" model="ir.ui.view">
+        <field name="name">kms.quiz.question.view.list</field>
+        <field name="model">kms.quiz.question</field>
+        <field name="arch" type="xml">
+            <list string="Quiz Questions">
+                <field name="sequence" widget="handle"/>
+                <field name="node_id"/>
+                <field name="question_text"/>
+                <field name="type"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Quiz Question Form View -->
+    <record id="kms_quiz_question_view_form" model="ir.ui.view">
+        <field name="name">kms.quiz.question.view.form</field>
+        <field name="model">kms.quiz.question</field>
+        <field name="arch" type="xml">
+            <form string="Quiz Question">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="node_id"/>
+                            <field name="type"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                    <separator string="Question"/>
+                    <field name="question_text"/>
+                    <separator string="Answer Options"/>
+                    <field name="answer_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="text"/>
+                            <field name="is_correct"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Quiz Question Action -->
+    <record id="kms_quiz_question_action" model="ir.actions.act_window">
+        <field name="name">Quiz Questions</field>
+        <field name="res_model">kms.quiz.question</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_quiz_question_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create quiz questions for knowledge nodes
+            </p>
+        </field>
+    </record>
+
+    <!-- Quiz Attempt Search View -->
+    <record id="kms_quiz_attempt_view_search" model="ir.ui.view">
+        <field name="name">kms.quiz.attempt.view.search</field>
+        <field name="model">kms.quiz.attempt</field>
+        <field name="arch" type="xml">
+            <search string="Search Attempts">
+                <field name="user_id"/>
+                <field name="node_id"/>
+                <filter string="Passed" name="passed" domain="[('passed', '=', True)]"/>
+                <filter string="Failed" name="failed" domain="[('passed', '=', False)]"/>
+                <group>
+                    <filter string="Learner" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Node" name="group_node" context="{'group_by': 'node_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Quiz Attempt List View -->
+    <record id="kms_quiz_attempt_view_list" model="ir.ui.view">
+        <field name="name">kms.quiz.attempt.view.list</field>
+        <field name="model">kms.quiz.attempt</field>
+        <field name="arch" type="xml">
+            <list string="Quiz Attempts" create="false" edit="false">
+                <field name="user_id"/>
+                <field name="node_id"/>
+                <field name="score" widget="percentage"/>
+                <field name="passed" widget="boolean"/>
+                <field name="date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Quiz Attempt Form View -->
+    <record id="kms_quiz_attempt_view_form" model="ir.ui.view">
+        <field name="name">kms.quiz.attempt.view.form</field>
+        <field name="model">kms.quiz.attempt</field>
+        <field name="arch" type="xml">
+            <form string="Quiz Attempt" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="node_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="score" widget="percentage"/>
+                            <field name="passed"/>
+                        </group>
+                    </group>
+                    <separator string="Answer Details"/>
+                    <field name="answer_line_ids">
+                        <list create="false" edit="false">
+                            <field name="question_id"/>
+                            <field name="selected_answer_id"/>
+                            <field name="is_correct" widget="boolean"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Quiz Attempt Action -->
+    <record id="kms_quiz_attempt_action" model="ir.actions.act_window">
+        <field name="name">Quiz Attempts</field>
+        <field name="res_model">kms.quiz.attempt</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_quiz_attempt_view_search"/>
+    </record>
+
+</odoo>

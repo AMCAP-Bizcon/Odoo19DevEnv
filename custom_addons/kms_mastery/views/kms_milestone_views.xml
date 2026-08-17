@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Milestone Search View -->
+    <record id="kms_milestone_view_search" model="ir.ui.view">
+        <field name="name">kms.milestone.view.search</field>
+        <field name="model">kms.milestone</field>
+        <field name="arch" type="xml">
+            <search string="Search Milestones">
+                <field name="name"/>
+                <field name="course_id"/>
+                <field name="instructor_id"/>
+                <group>
+                    <filter string="Course" name="group_course" context="{'group_by': 'course_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Milestone List View -->
+    <record id="kms_milestone_view_list" model="ir.ui.view">
+        <field name="name">kms.milestone.view.list</field>
+        <field name="model">kms.milestone</field>
+        <field name="arch" type="xml">
+            <list string="Milestones">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="course_id"/>
+                <field name="instructor_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Milestone Form View -->
+    <record id="kms_milestone_view_form" model="ir.ui.view">
+        <field name="name">kms.milestone.view.form</field>
+        <field name="model">kms.milestone</field>
+        <field name="arch" type="xml">
+            <form string="Milestone">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Build a CLI Calculator"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="course_id"/>
+                            <field name="instructor_id"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="node_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <separator string="Assignment Instructions"/>
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Milestone Action -->
+    <record id="kms_milestone_action" model="ir.actions.act_window">
+        <field name="name">Milestones</field>
+        <field name="res_model">kms.milestone</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_milestone_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create milestone assignments
+            </p>
+            <p>
+                Milestones are human-graded assignments that validate practical
+                knowledge across multiple nodes.
+            </p>
+        </field>
+    </record>
+
+    <!-- User Milestone Search View -->
+    <record id="kms_user_milestone_view_search" model="ir.ui.view">
+        <field name="name">kms.user.milestone.view.search</field>
+        <field name="model">kms.user.milestone</field>
+        <field name="arch" type="xml">
+            <search string="Search Submissions">
+                <field name="user_id"/>
+                <field name="milestone_id"/>
+                <field name="state"/>
+                <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Passed" name="passed" domain="[('state', '=', 'passed')]"/>
+                <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                <group>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Learner" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Milestone" name="group_milestone" context="{'group_by': 'milestone_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- User Milestone List View -->
+    <record id="kms_user_milestone_view_list" model="ir.ui.view">
+        <field name="name">kms.user.milestone.view.list</field>
+        <field name="model">kms.user.milestone</field>
+        <field name="arch" type="xml">
+            <list string="Milestone Submissions">
+                <field name="user_id"/>
+                <field name="milestone_id"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'pending'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-success="state == 'passed'"
+                       decoration-danger="state == 'failed'"/>
+                <field name="submission_date"/>
+                <field name="grade_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- User Milestone Form View -->
+    <record id="kms_user_milestone_view_form" model="ir.ui.view">
+        <field name="name">kms.user.milestone.view.form</field>
+        <field name="model">kms.user.milestone</field>
+        <field name="arch" type="xml">
+            <form string="Milestone Submission">
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                            class="oe_highlight"
+                            invisible="state != 'pending'"/>
+                    <button name="action_pass" string="Pass" type="object"
+                            class="oe_highlight"
+                            invisible="state != 'submitted'"
+                            groups="kms_mastery.group_kms_instructor"/>
+                    <button name="action_fail" string="Fail" type="object"
+                            class="btn-danger"
+                            invisible="state != 'submitted'"
+                            groups="kms_mastery.group_kms_instructor"/>
+                    <button name="action_reset_to_pending" string="Reset to Pending" type="object"
+                            invisible="state not in ('passed', 'failed')"
+                            groups="kms_mastery.group_kms_instructor"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pending,submitted,passed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1"/>
+                            <field name="milestone_id" readonly="1"/>
+                            <field name="course_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="submission_date" readonly="1"/>
+                            <field name="grade_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Submission" name="submission">
+                            <group>
+                                <field name="submission_url" widget="url"
+                                       readonly="state != 'pending'"/>
+                            </group>
+                            <field name="submission_file_ids" widget="many2many_binary"
+                                   readonly="state != 'pending'"/>
+                        </page>
+                        <page string="Instructor Feedback" name="feedback"
+                              groups="kms_mastery.group_kms_instructor">
+                            <field name="instructor_feedback"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- User Milestone Action (Instructor view) -->
+    <record id="kms_user_milestone_action" model="ir.actions.act_window">
+        <field name="name">Milestone Submissions</field>
+        <field name="res_model">kms.user.milestone</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_user_milestone_view_search"/>
+    </record>
+
+</odoo>
