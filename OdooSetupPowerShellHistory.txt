@@ -1,0 +1,26 @@
+winget install Git.Git
+winget install wkhtmltopdf
+git --version
+exit
+git --version
+python --version
+wkhtmltopdf --version
+postgres --version
+Get-Service -Name *postgres*
+git --version
+postgres --version
+git --version
+python --version
+Get-Service -Name *postgres*
+wkhtmltopdf --version
+exit
+wkhtmltopdf --version
+exit
+git --version
+python --version
+wkhtmltopdf --version
+postgres --version
+psql -U postgres
+exit
+.\venv\Scripts\python.exe .\odoo\odoo-bin -c odoo.conf
+Copy-Item (Get-PSReadlineOption).HistorySavePath -Destination "C:\Users\aniru\Documents\Odoo19DevEnv\PowerShellHistory.txt"
