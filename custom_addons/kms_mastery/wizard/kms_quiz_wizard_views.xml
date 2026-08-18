@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Quiz Wizard Form View -->
+    <record id="kms_quiz_wizard_view_form" model="ir.ui.view">
+        <field name="name">kms.quiz.wizard.view.form</field>
+        <field name="model">kms.quiz.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Take Quiz">
+                <sheet>
+                    <field name="user_node_id" invisible="1"/>
+                    <field name="node_id" invisible="1"/>
+                    <field name="line_ids">
+                        <list create="false" delete="false" editable="bottom">
+                            <field name="question_id" invisible="1"/>
+                            <field name="question_text" widget="html" readonly="1"/>
+                            <field name="selected_answer_id" options="{'no_create': True, 'no_open': True}"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_submit" string="Submit Quiz" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Quiz Wizard Window Action -->
+    <record id="action_kms_quiz_wizard" model="ir.actions.act_window">
+        <field name="name">Take Quiz</field>
+        <field name="res_model">kms.quiz.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

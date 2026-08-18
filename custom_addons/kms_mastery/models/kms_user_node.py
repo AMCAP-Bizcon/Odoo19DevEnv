@@ -1,6 +1,7 @@
 # Part of KMS Mastery Learning. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+# pyrefly: ignore [missing-import]
 from odoo.exceptions import UserError
 
 
@@ -53,13 +54,13 @@ class KmsUserNode(models.Model):
             return
 
         # Check if all prerequisites are mastered
-        mastered_prereqs = self.search_count([
+        mastered_prereqs = self.sudo().search_count([
             ('user_id', '=', user.id),
             ('node_id', 'in', node.prerequisite_ids.ids),
             ('state', '=', 'mastered'),
         ])
         if mastered_prereqs == len(node.prerequisite_ids):
-            user_node = self.search([
+            user_node = self.sudo().search([
                 ('user_id', '=', user.id),
                 ('node_id', '=', node.id),
             ], limit=1)
@@ -105,7 +106,7 @@ class KmsUserNode(models.Model):
 
         score = correct / total
 
-        attempt = self.env['kms.quiz.attempt'].create({
+        attempt = self.env['kms.quiz.attempt'].sudo().create({
             'user_id': self.user_id.id,
             'node_id': self.node_id.id,
             'score': score,
@@ -124,7 +125,7 @@ class KmsUserNode(models.Model):
             })
 
             # Auto-create flashcard progress records
-            UserFlashcard = self.env['kms.user.flashcard']
+            UserFlashcard = self.env['kms.user.flashcard'].sudo()
             for flashcard in self.node_id.flashcard_ids:
                 existing = UserFlashcard.search([
                     ('user_id', '=', self.user_id.id),

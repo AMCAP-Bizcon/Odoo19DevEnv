@@ -3,3 +3,4 @@
 from . import test_dag_logic
 from . import test_mastery_logic
 from . import test_fsrs_logic
+from . import test_quiz_wizard

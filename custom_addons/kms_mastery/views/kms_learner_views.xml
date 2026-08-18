@@ -79,6 +79,12 @@
         <field name="model">kms.user.node</field>
         <field name="arch" type="xml">
             <form string="Node Progress" create="false">
+                <header>
+                    <button name="%(kms_mastery.action_kms_quiz_wizard)d" string="Take Quiz"
+                            type="action" class="oe_highlight"
+                            invisible="state == 'locked'"
+                            context="{'default_user_node_id': id}"/>
+                </header>
                 <sheet>
                     <group>
                         <group>
