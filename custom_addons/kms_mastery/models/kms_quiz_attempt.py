@@ -9,7 +9,9 @@ class KmsQuizAttempt(models.Model):
     _name = 'kms.quiz.attempt'
     _description = 'KMS Quiz Attempt'
     _order = 'date desc, id desc'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Attempt', compute='_compute_name', store=True)
     user_id = fields.Many2one(
         'res.users',
         string='Learner',
@@ -41,6 +43,14 @@ class KmsQuizAttempt(models.Model):
         string='Answer Lines',
     )
 
+    @api.depends('user_id.name', 'node_id.name', 'date')
+    def _compute_name(self):
+        for rec in self:
+            date_str = rec.date.strftime('%Y-%m-%d %H:%M') if rec.date else ''
+            user_name = rec.user_id.name or 'Learner'
+            node_name = rec.node_id.name or 'Node'
+            rec.name = f"{node_name} - {user_name} ({date_str})" if date_str else f"{node_name} - {user_name}"
+
     @api.depends('score', 'node_id.mastery_threshold')
     def _compute_passed(self):
         for rec in self:
@@ -52,7 +62,9 @@ class KmsQuizAttemptLine(models.Model):
 
     _name = 'kms.quiz.attempt.line'
     _description = 'KMS Quiz Attempt Line'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Line', compute='_compute_name')
     attempt_id = fields.Many2one(
         'kms.quiz.attempt',
         string='Attempt',
@@ -73,6 +85,13 @@ class KmsQuizAttemptLine(models.Model):
         store=True,
         groups='kms_mastery.group_kms_instructor',
     )
+
+    @api.depends('question_id.name', 'selected_answer_id.text')
+    def _compute_name(self):
+        for rec in self:
+            q_name = rec.question_id.name or 'Question'
+            ans_text = rec.selected_answer_id.text or 'No Answer'
+            rec.name = f"{q_name}: {ans_text}"
 
     @api.depends('selected_answer_id.is_correct')
     def _compute_is_correct(self):

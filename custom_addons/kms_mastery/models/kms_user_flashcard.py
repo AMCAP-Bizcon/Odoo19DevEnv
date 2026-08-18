@@ -19,7 +19,9 @@ class KmsUserFlashcard(models.Model):
     _name = 'kms.user.flashcard'
     _description = 'KMS User Flashcard Progress'
     _order = 'next_review_date, id'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Name', compute='_compute_name', store=True)
     user_id = fields.Many2one(
         'res.users',
         string='Learner',
@@ -43,6 +45,13 @@ class KmsUserFlashcard(models.Model):
         related='flashcard_id.back',
         readonly=True,
     )
+
+    @api.depends('user_id.name', 'flashcard_id.name')
+    def _compute_name(self):
+        for rec in self:
+            user_name = rec.user_id.name or 'Learner'
+            fc_name = rec.flashcard_id.name or 'Flashcard'
+            rec.name = f"{user_name} - {fc_name}"
     state = fields.Selection(
         [
             ('new', 'New'),

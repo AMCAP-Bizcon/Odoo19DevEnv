@@ -1,6 +1,7 @@
 # Part of KMS Mastery Learning. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+# pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError
 
 
@@ -10,6 +11,7 @@ class KmsNode(models.Model):
     _name = 'kms.node'
     _description = 'KMS Knowledge Node'
     _order = 'sequence, id'
+    _rec_name = 'name'
 
     name = fields.Char(string='Node Name', required=True)
     description = fields.Html(string='Learning Content')

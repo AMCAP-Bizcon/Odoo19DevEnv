@@ -1,6 +1,7 @@
 # Part of KMS Mastery Learning. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+# pyrefly: ignore [missing-import]
 from odoo.exceptions import UserError
 
 
@@ -9,7 +10,9 @@ class KmsQuizWizard(models.TransientModel):
 
     _name = 'kms.quiz.wizard'
     _description = 'KMS Quiz Wizard'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Name', compute='_compute_name')
     user_node_id = fields.Many2one(
         'kms.user.node',
         string='User Node Progress',
@@ -26,6 +29,11 @@ class KmsQuizWizard(models.TransientModel):
         'wizard_id',
         string='Questions',
     )
+
+    @api.depends('node_id.name')
+    def _compute_name(self):
+        for rec in self:
+            rec.name = f"Quiz: {rec.node_id.name}" if rec.node_id else "Quiz"
 
     @api.model
     def default_get(self, fields_list):
@@ -103,7 +111,9 @@ class KmsQuizWizardLine(models.TransientModel):
 
     _name = 'kms.quiz.wizard.line'
     _description = 'KMS Quiz Wizard Line'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Name', compute='_compute_name')
     wizard_id = fields.Many2one(
         'kms.quiz.wizard',
         string='Wizard',
@@ -117,7 +127,7 @@ class KmsQuizWizardLine(models.TransientModel):
         ondelete='cascade',
     )
     question_text = fields.Html(
-        string='Question',
+        string='Question Text',
         related='question_id.question_text',
         readonly=True,
     )
@@ -126,3 +136,8 @@ class KmsQuizWizardLine(models.TransientModel):
         string='Selected Answer',
         domain="[('question_id', '=', question_id)]",
     )
+
+    @api.depends('question_id.name')
+    def _compute_name(self):
+        for rec in self:
+            rec.name = rec.question_id.name if rec.question_id else "Question Line"

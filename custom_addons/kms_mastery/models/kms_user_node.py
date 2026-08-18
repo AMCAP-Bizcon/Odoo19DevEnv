@@ -11,7 +11,9 @@ class KmsUserNode(models.Model):
     _name = 'kms.user.node'
     _description = 'KMS User Node Progress'
     _order = 'node_id'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Name', compute='_compute_name', store=True)
     user_id = fields.Many2one(
         'res.users',
         string='Learner',
@@ -42,6 +44,13 @@ class KmsUserNode(models.Model):
         'UNIQUE(user_id, node_id)',
         'A user can only have one progress record per node.',
     )
+
+    @api.depends('user_id.name', 'node_id.name')
+    def _compute_name(self):
+        for rec in self:
+            user_name = rec.user_id.name or 'Learner'
+            node_name = rec.node_id.name or 'Node'
+            rec.name = f"{user_name} - {node_name}"
 
     @api.model
     def action_check_unlock(self, user, node):
