@@ -100,7 +100,7 @@ class KmsUserNode(models.Model):
 
         correct = 0
         for ans in answers:
-            answer_rec = self.env['kms.quiz.answer'].browse(ans['answer_id'])
+            answer_rec = self.env['kms.quiz.answer'].sudo().browse(ans['answer_id'])
             if answer_rec.is_correct:
                 correct += 1
 
@@ -126,7 +126,7 @@ class KmsUserNode(models.Model):
 
             # Auto-create flashcard progress records
             UserFlashcard = self.env['kms.user.flashcard'].sudo()
-            for flashcard in self.node_id.flashcard_ids:
+            for flashcard in self.node_id.sudo().flashcard_ids:
                 existing = UserFlashcard.search([
                     ('user_id', '=', self.user_id.id),
                     ('flashcard_id', '=', flashcard.id),

@@ -41,7 +41,7 @@ class KmsQuizWizard(models.TransientModel):
                 if 'line_ids' in fields_list:
                     lines = [
                         (0, 0, {'question_id': question.id})
-                        for question in user_node.node_id.quiz_question_ids
+                        for question in user_node.node_id.sudo().quiz_question_ids
                     ]
                     res['line_ids'] = lines
         return res
