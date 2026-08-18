@@ -1,5 +1,6 @@
 # Part of KMS Mastery Learning. See LICENSE file for full copyright and licensing details.
 
+# pyrefly: ignore [missing-import]
 from odoo.tests.common import TransactionCase
 
 
@@ -15,11 +16,13 @@ class TestMasteryLogic(TransactionCase):
         Flashcard = cls.env['kms.flashcard']
         UserNode = cls.env['kms.user.node']
 
-        # Create a learner user
+        # Create a learner user with group_kms_learner
+        learner_group = cls.env.ref('kms_mastery.group_kms_learner')
         cls.learner = cls.env['res.users'].create({
             'name': 'Test Learner',
             'login': 'test_learner_mastery',
             'password': 'test_learner_mastery',
+            'group_ids': [(6, 0, [learner_group.id, cls.env.ref('base.group_user').id])],
         })
 
         # Create nodes: A → B

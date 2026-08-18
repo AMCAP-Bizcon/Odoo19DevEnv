@@ -42,12 +42,14 @@
                         <button class="oe_stat_button" icon="fa-question-circle"
                                 name="%(kms_mastery.kms_quiz_question_action)d"
                                 type="action"
+                                groups="kms_mastery.group_kms_instructor"
                                 context="{'default_node_id': id, 'search_default_node_id': id}">
                             <field name="quiz_question_count" widget="statinfo" string="Questions"/>
                         </button>
                         <button class="oe_stat_button" icon="fa-clone"
                                 name="%(kms_mastery.kms_flashcard_action)d"
                                 type="action"
+                                groups="kms_mastery.group_kms_instructor"
                                 context="{'default_node_id': id, 'search_default_node_id': id}">
                             <field name="flashcard_count" widget="statinfo" string="Flashcards"/>
                         </button>
@@ -76,7 +78,7 @@
                             <separator string="Attachments"/>
                             <field name="attachment_ids" widget="many2many_binary"/>
                         </page>
-                        <page string="Quiz Questions" name="quiz">
+                        <page string="Quiz Questions" name="quiz" groups="kms_mastery.group_kms_instructor">
                             <field name="quiz_question_ids">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
@@ -85,7 +87,7 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Flashcards" name="flashcards">
+                        <page string="Flashcards" name="flashcards" groups="kms_mastery.group_kms_instructor">
                             <field name="flashcard_ids">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>

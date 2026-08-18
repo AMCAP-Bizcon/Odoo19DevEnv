@@ -9,6 +9,7 @@ class KmsMilestone(models.Model):
     _name = 'kms.milestone'
     _description = 'KMS Milestone'
     _order = 'sequence, id'
+    _rec_name = 'name'
 
     name = fields.Char(string='Milestone Name', required=True)
     description = fields.Html(string='Assignment Instructions')

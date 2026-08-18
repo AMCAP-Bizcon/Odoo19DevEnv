@@ -79,6 +79,12 @@
         <field name="model">kms.user.node</field>
         <field name="arch" type="xml">
             <form string="Node Progress" create="false">
+                <header>
+                    <button name="%(kms_mastery.action_kms_quiz_wizard)d" string="Take Quiz"
+                            type="action" class="oe_highlight"
+                            invisible="state == 'locked'"
+                            context="{'default_user_node_id': id}"/>
+                </header>
                 <sheet>
                     <group>
                         <group>
@@ -197,16 +203,13 @@
                     </group>
                     <notebook>
                         <page string="Front (Question)" name="front">
-                            <field name="flashcard_id" invisible="1"/>
                             <div class="p-3 bg-100 rounded mb-3" style="min-height: 150px;">
-                                <field name="flashcard_id" readonly="1" widget="html"
-                                       options="{'field': 'front'}"/>
+                                <field name="front" readonly="1"/>
                             </div>
                         </page>
                         <page string="Back (Answer)" name="back">
                             <div class="p-3 bg-100 rounded mb-3" style="min-height: 150px;">
-                                <field name="flashcard_id" readonly="1" widget="html"
-                                       options="{'field': 'back'}"/>
+                                <field name="back" readonly="1"/>
                             </div>
                         </page>
                     </notebook>

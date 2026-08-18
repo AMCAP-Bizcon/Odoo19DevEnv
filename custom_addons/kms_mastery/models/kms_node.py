@@ -1,6 +1,7 @@
 # Part of KMS Mastery Learning. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+# pyrefly: ignore [missing-import]
 from odoo.exceptions import ValidationError
 
 
@@ -10,6 +11,7 @@ class KmsNode(models.Model):
     _name = 'kms.node'
     _description = 'KMS Knowledge Node'
     _order = 'sequence, id'
+    _rec_name = 'name'
 
     name = fields.Char(string='Node Name', required=True)
     description = fields.Html(string='Learning Content')
@@ -45,16 +47,25 @@ class KmsNode(models.Model):
         string='Dependents',
     )
 
+    # User Progress relationship
+    user_node_ids = fields.One2many(
+        'kms.user.node',
+        'node_id',
+        string='User Progress',
+    )
+
     # Content relationships
     quiz_question_ids = fields.One2many(
         'kms.quiz.question',
         'node_id',
         string='Quiz Questions',
+        groups='kms_mastery.group_kms_instructor',
     )
     flashcard_ids = fields.One2many(
         'kms.flashcard',
         'node_id',
         string='Flashcards',
+        groups='kms_mastery.group_kms_instructor',
     )
 
     # Computed counts
@@ -70,12 +81,12 @@ class KmsNode(models.Model):
     @api.depends('quiz_question_ids')
     def _compute_quiz_question_count(self):
         for rec in self:
-            rec.quiz_question_count = len(rec.quiz_question_ids)
+            rec.quiz_question_count = len(rec.sudo().quiz_question_ids)
 
     @api.depends('flashcard_ids')
     def _compute_flashcard_count(self):
         for rec in self:
-            rec.flashcard_count = len(rec.flashcard_ids)
+            rec.flashcard_count = len(rec.sudo().flashcard_ids)
 
     @api.constrains('prerequisite_ids')
     def _check_no_cyclic_dependencies(self):

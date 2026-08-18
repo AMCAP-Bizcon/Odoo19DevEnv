@@ -9,6 +9,7 @@ class KmsQuizAnswer(models.Model):
     _name = 'kms.quiz.answer'
     _description = 'KMS Quiz Answer'
     _order = 'sequence, id'
+    _rec_name = 'text'
 
     question_id = fields.Many2one(
         'kms.quiz.question',
@@ -17,5 +18,9 @@ class KmsQuizAnswer(models.Model):
         ondelete='cascade',
     )
     text = fields.Char(string='Answer Text', required=True)
-    is_correct = fields.Boolean(string='Correct Answer', default=False)
+    is_correct = fields.Boolean(
+        string='Correct Answer',
+        default=False,
+        groups='kms_mastery.group_kms_instructor',
+    )
     sequence = fields.Integer(default=10)

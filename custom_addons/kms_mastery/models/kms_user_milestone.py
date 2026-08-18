@@ -14,7 +14,9 @@ class KmsUserMilestone(models.Model):
     _description = 'KMS User Milestone Submission'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'submission_date desc, id desc'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Submission Name', compute='_compute_name', store=True)
     user_id = fields.Many2one(
         'res.users',
         string='Learner',
@@ -62,6 +64,13 @@ class KmsUserMilestone(models.Model):
         related='milestone_id.name',
         string='Milestone Name',
     )
+
+    @api.depends('user_id.name', 'milestone_id.name')
+    def _compute_name(self):
+        for rec in self:
+            user_name = rec.user_id.name or 'Learner'
+            ms_name = rec.milestone_id.name or 'Milestone'
+            rec.name = f"{ms_name} ({user_name})"
 
     def action_submit(self):
         """Mark the milestone as submitted by the learner."""

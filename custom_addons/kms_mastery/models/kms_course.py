@@ -10,6 +10,7 @@ class KmsCourse(models.Model):
     _description = 'KMS Course'
     _inherit = ['mail.thread']
     _order = 'sequence, id'
+    _rec_name = 'name'
 
     name = fields.Char(string='Course Name', required=True, tracking=True)
     description = fields.Html(string='Course Overview')

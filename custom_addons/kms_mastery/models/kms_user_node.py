@@ -1,6 +1,7 @@
 # Part of KMS Mastery Learning. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models, _
+# pyrefly: ignore [missing-import]
 from odoo.exceptions import UserError
 
 
@@ -10,7 +11,9 @@ class KmsUserNode(models.Model):
     _name = 'kms.user.node'
     _description = 'KMS User Node Progress'
     _order = 'node_id'
+    _rec_name = 'name'
 
+    name = fields.Char(string='Name', compute='_compute_name', store=True)
     user_id = fields.Many2one(
         'res.users',
         string='Learner',
@@ -42,6 +45,13 @@ class KmsUserNode(models.Model):
         'A user can only have one progress record per node.',
     )
 
+    @api.depends('user_id.name', 'node_id.name')
+    def _compute_name(self):
+        for rec in self:
+            user_name = rec.user_id.name or 'Learner'
+            node_name = rec.node_id.name or 'Node'
+            rec.name = f"{user_name} - {node_name}"
+
     @api.model
     def action_check_unlock(self, user, node):
         """
@@ -53,13 +63,13 @@ class KmsUserNode(models.Model):
             return
 
         # Check if all prerequisites are mastered
-        mastered_prereqs = self.search_count([
+        mastered_prereqs = self.sudo().search_count([
             ('user_id', '=', user.id),
             ('node_id', 'in', node.prerequisite_ids.ids),
             ('state', '=', 'mastered'),
         ])
         if mastered_prereqs == len(node.prerequisite_ids):
-            user_node = self.search([
+            user_node = self.sudo().search([
                 ('user_id', '=', user.id),
                 ('node_id', '=', node.id),
             ], limit=1)
@@ -99,13 +109,13 @@ class KmsUserNode(models.Model):
 
         correct = 0
         for ans in answers:
-            answer_rec = self.env['kms.quiz.answer'].browse(ans['answer_id'])
+            answer_rec = self.env['kms.quiz.answer'].sudo().browse(ans['answer_id'])
             if answer_rec.is_correct:
                 correct += 1
 
         score = correct / total
 
-        attempt = self.env['kms.quiz.attempt'].create({
+        attempt = self.env['kms.quiz.attempt'].sudo().create({
             'user_id': self.user_id.id,
             'node_id': self.node_id.id,
             'score': score,
@@ -124,8 +134,8 @@ class KmsUserNode(models.Model):
             })
 
             # Auto-create flashcard progress records
-            UserFlashcard = self.env['kms.user.flashcard']
-            for flashcard in self.node_id.flashcard_ids:
+            UserFlashcard = self.env['kms.user.flashcard'].sudo()
+            for flashcard in self.node_id.sudo().flashcard_ids:
                 existing = UserFlashcard.search([
                     ('user_id', '=', self.user_id.id),
                     ('flashcard_id', '=', flashcard.id),
