@@ -88,6 +88,30 @@
             <field name="domain_force">[('attempt_id.user_id', '=', user.id)]</field>
         </record>
 
+        <!-- Learner: assigned flashcards only (after mastering node) -->
+        <record id="rule_flashcard_learner" model="ir.rule">
+            <field name="name">KMS: Learner assigned flashcards only</field>
+            <field name="model_id" ref="model_kms_flashcard"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('user_flashcard_ids.user_id', '=', user.id)]</field>
+        </record>
+
+        <!-- Learner: quiz questions for unlocked/mastered nodes only -->
+        <record id="rule_quiz_question_learner" model="ir.rule">
+            <field name="name">KMS: Learner accessible quiz questions</field>
+            <field name="model_id" ref="model_kms_quiz_question"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('node_id.user_node_ids.user_id', '=', user.id), ('node_id.user_node_ids.state', 'in', ['unlocked', 'mastered'])]</field>
+        </record>
+
+        <!-- Learner: quiz answers for unlocked/mastered nodes only -->
+        <record id="rule_quiz_answer_learner" model="ir.rule">
+            <field name="name">KMS: Learner accessible quiz answers</field>
+            <field name="model_id" ref="model_kms_quiz_answer"/>
+            <field name="groups" eval="[(4, ref('group_kms_learner'))]"/>
+            <field name="domain_force">[('question_id.node_id.user_node_ids.user_id', '=', user.id), ('question_id.node_id.user_node_ids.state', 'in', ['unlocked', 'mastered'])]</field>
+        </record>
+
         <!-- Instructor: full access to all records -->
         <record id="rule_course_instructor" model="ir.rule">
             <field name="name">KMS: Instructor full course access</field>
@@ -99,6 +123,27 @@
         <record id="rule_node_instructor" model="ir.rule">
             <field name="name">KMS: Instructor full node access</field>
             <field name="model_id" ref="model_kms_node"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_flashcard_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor full flashcard access</field>
+            <field name="model_id" ref="model_kms_flashcard"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_quiz_question_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor full quiz question access</field>
+            <field name="model_id" ref="model_kms_quiz_question"/>
+            <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_quiz_answer_instructor" model="ir.rule">
+            <field name="name">KMS: Instructor full quiz answer access</field>
+            <field name="model_id" ref="model_kms_quiz_answer"/>
             <field name="groups" eval="[(4, ref('group_kms_instructor'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>

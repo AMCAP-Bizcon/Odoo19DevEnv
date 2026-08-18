@@ -33,6 +33,16 @@ class KmsUserFlashcard(models.Model):
         ondelete='cascade',
         index=True,
     )
+    front = fields.Html(
+        string='Front (Question)',
+        related='flashcard_id.front',
+        readonly=True,
+    )
+    back = fields.Html(
+        string='Back (Answer)',
+        related='flashcard_id.back',
+        readonly=True,
+    )
     state = fields.Selection(
         [
             ('new', 'New'),

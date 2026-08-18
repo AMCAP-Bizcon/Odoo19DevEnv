@@ -71,9 +71,10 @@ class KmsQuizAttemptLine(models.Model):
         string='Correct',
         compute='_compute_is_correct',
         store=True,
+        groups='kms_mastery.group_kms_instructor',
     )
 
     @api.depends('selected_answer_id.is_correct')
     def _compute_is_correct(self):
         for rec in self:
-            rec.is_correct = rec.selected_answer_id.is_correct if rec.selected_answer_id else False
+            rec.is_correct = rec.selected_answer_id.sudo().is_correct if rec.selected_answer_id else False

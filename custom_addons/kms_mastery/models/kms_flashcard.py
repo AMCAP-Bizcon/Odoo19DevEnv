@@ -19,3 +19,8 @@ class KmsFlashcard(models.Model):
     front = fields.Html(string='Front (Question)')
     back = fields.Html(string='Back (Answer)')
     sequence = fields.Integer(default=10)
+    user_flashcard_ids = fields.One2many(
+        'kms.user.flashcard',
+        'flashcard_id',
+        string='User Flashcards',
+    )
