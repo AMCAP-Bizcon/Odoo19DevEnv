@@ -54,6 +54,11 @@ class KmsUserMilestone(models.Model):
     grade_date = fields.Datetime(string='Grade Date')
     instructor_feedback = fields.Html(string='Instructor Feedback')
 
+    _user_milestone_unique = models.Constraint(
+        'UNIQUE(user_id, milestone_id)',
+        'A user can only have one submission record per milestone.',
+    )
+
     # Related fields for display
     course_id = fields.Many2one(
         related='milestone_id.course_id',

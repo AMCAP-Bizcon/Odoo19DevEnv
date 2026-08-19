@@ -46,6 +46,13 @@ class KmsNode(models.Model):
         'node_id',
         string='Dependents',
     )
+    course_ids = fields.Many2many(
+        'kms.course',
+        'kms_course_node_rel',
+        'node_id',
+        'course_id',
+        string='Courses',
+    )
 
     # User Progress relationship
     user_node_ids = fields.One2many(

@@ -76,6 +76,52 @@ class KmsUserNode(models.Model):
             if user_node and user_node.state == 'locked':
                 user_node.write({'state': 'unlocked'})
 
+    @api.model
+    def action_check_milestones(self, user, node):
+        """
+        Check if all nodes associated with any milestone containing ``node``
+        have been mastered by ``user``. If so, assign the milestone by creating
+        a kms.user.milestone record in 'pending' state.
+        """
+        Milestone = self.env['kms.milestone'].sudo()
+        UserMilestone = self.env['kms.user.milestone'].sudo()
+
+        milestones = Milestone.search([('node_ids', 'in', node.id)])
+        for milestone in milestones:
+            if not milestone.node_ids:
+                continue
+            mastered_count = self.sudo().search_count([
+                ('user_id', '=', user.id),
+                ('node_id', 'in', milestone.node_ids.ids),
+                ('state', '=', 'mastered'),
+            ])
+            if mastered_count == len(milestone.node_ids):
+                existing = UserMilestone.search([
+                    ('user_id', '=', user.id),
+                    ('milestone_id', '=', milestone.id),
+                ], limit=1)
+                if not existing:
+                    UserMilestone.create({
+                        'user_id': user.id,
+                        'milestone_id': milestone.id,
+                        'state': 'pending',
+                    })
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records:
+            if rec.state == 'mastered':
+                self.action_check_milestones(rec.user_id, rec.node_id)
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if vals.get('state') == 'mastered':
+            for rec in self:
+                self.action_check_milestones(rec.user_id, rec.node_id)
+        return res
+
     def action_submit_quiz(self, answers):
         """
         Submit a quiz attempt for the current user-node record.
@@ -147,8 +193,12 @@ class KmsUserNode(models.Model):
                         'state': 'new',
                     })
 
+            # Auto-assign milestones if all associated nodes are mastered
+            self.action_check_milestones(self.user_id, self.node_id)
+
             # Trigger unlock check on all dependents
             for dependent in self.node_id.dependent_ids:
                 self.action_check_unlock(self.user_id, dependent)
 
         return attempt
+

@@ -81,6 +81,23 @@ class TestMasteryLogic(TransactionCase):
             'back': '<p>Back 2</p>',
         })
 
+        # Create Course and Milestones
+        cls.course = cls.env['kms.course'].create({
+            'name': 'Test Mastery Course',
+            'node_ids': [(6, 0, [cls.node_a.id, cls.node_b.id])],
+            'learner_ids': [(4, cls.learner.id)],
+        })
+        cls.milestone_single = cls.env['kms.milestone'].create({
+            'name': 'Test Single Node Milestone',
+            'course_id': cls.course.id,
+            'node_ids': [(4, cls.node_a.id)],
+        })
+        cls.milestone_multi = cls.env['kms.milestone'].create({
+            'name': 'Test Multi Node Milestone',
+            'course_id': cls.course.id,
+            'node_ids': [(4, cls.node_a.id), (4, cls.node_b.id)],
+        })
+
         # Create user-node progress records
         cls.un_a = UserNode.with_user(cls.learner).create({
             'user_id': cls.learner.id,
@@ -166,3 +183,109 @@ class TestMasteryLogic(TransactionCase):
             {'question_id': self.q2.id, 'answer_id': self.q2_correct.id},
         ])
         self.assertEqual(self.un_a.best_quiz_score, 1.0)
+
+    def test_milestone_auto_assigned_on_quiz_pass(self):
+        """Mastering node A via quiz should auto-assign single-node milestone, but not multi-node."""
+        self.un_a.action_submit_quiz([
+            {'question_id': self.q1.id, 'answer_id': self.q1_correct.id},
+            {'question_id': self.q2.id, 'answer_id': self.q2_correct.id},
+        ])
+        # Single-node milestone should be assigned
+        user_ms_single = self.env['kms.user.milestone'].search([
+            ('user_id', '=', self.learner.id),
+            ('milestone_id', '=', self.milestone_single.id),
+        ])
+        self.assertEqual(len(user_ms_single), 1)
+        self.assertEqual(user_ms_single.state, 'pending')
+
+        # Multi-node milestone should NOT be assigned yet (node B not mastered)
+        user_ms_multi = self.env['kms.user.milestone'].search([
+            ('user_id', '=', self.learner.id),
+            ('milestone_id', '=', self.milestone_multi.id),
+        ])
+        self.assertEqual(len(user_ms_multi), 0)
+
+    def test_milestone_multi_node_complete_mastery(self):
+        """Milestone requiring multiple nodes should only be assigned when all nodes are mastered."""
+        # Master node A
+        self.un_a.action_submit_quiz([
+            {'question_id': self.q1.id, 'answer_id': self.q1_correct.id},
+            {'question_id': self.q2.id, 'answer_id': self.q2_correct.id},
+        ])
+        # Multi-node milestone not assigned yet
+        user_ms_multi = self.env['kms.user.milestone'].search([
+            ('user_id', '=', self.learner.id),
+            ('milestone_id', '=', self.milestone_multi.id),
+        ])
+        self.assertEqual(len(user_ms_multi), 0)
+
+        # Master node B
+        self.un_b.write({'state': 'mastered'})
+
+        # Now multi-node milestone should be assigned
+        user_ms_multi = self.env['kms.user.milestone'].search([
+            ('user_id', '=', self.learner.id),
+            ('milestone_id', '=', self.milestone_multi.id),
+        ])
+        self.assertEqual(len(user_ms_multi), 1)
+        self.assertEqual(user_ms_multi.state, 'pending')
+
+    def test_milestone_auto_assigned_on_direct_write(self):
+        """Setting state='mastered' via write() should trigger milestone assignment."""
+        self.un_a.write({'state': 'mastered'})
+        user_ms_single = self.env['kms.user.milestone'].search([
+            ('user_id', '=', self.learner.id),
+            ('milestone_id', '=', self.milestone_single.id),
+        ])
+        self.assertEqual(len(user_ms_single), 1)
+        self.assertEqual(user_ms_single.state, 'pending')
+
+    def test_milestone_assigned_on_course_enrollment(self):
+        """Enrolling in a course assigns milestones whose nodes are already mastered."""
+        # Master node A first
+        self.un_a.write({'state': 'mastered'})
+
+        # Create a new course with a milestone on node A
+        new_course = self.env['kms.course'].create({
+            'name': 'Advanced Course',
+            'node_ids': [(4, self.node_a.id)],
+        })
+        new_milestone = self.env['kms.milestone'].create({
+            'name': 'Advanced Milestone',
+            'course_id': new_course.id,
+            'node_ids': [(4, self.node_a.id)],
+        })
+
+        # Enroll learner in new course
+        new_course.action_enroll_learner(self.learner)
+
+        user_ms = self.env['kms.user.milestone'].search([
+            ('user_id', '=', self.learner.id),
+            ('milestone_id', '=', new_milestone.id),
+        ])
+        self.assertEqual(len(user_ms), 1)
+        self.assertEqual(user_ms.state, 'pending')
+
+    def test_action_view_nodes(self):
+        """Test action_view_nodes returns domain/form correctly and inverse course_ids works."""
+        course = self.env['kms.course'].create({
+            'name': 'Node Action Test Course',
+            'node_ids': [(6, 0, [self.node_a.id, self.node_b.id])],
+        })
+        self.assertIn(course, self.node_a.course_ids)
+        self.assertIn(course, self.node_b.course_ids)
+
+        action = course.action_view_nodes()
+        self.assertEqual(action.get('domain'), [('id', 'in', [self.node_a.id, self.node_b.id])])
+        self.assertEqual(action.get('context'), {'default_course_ids': [(4, course.id)]})
+
+        # Single node scenario opens form view directly
+        course_single = self.env['kms.course'].create({
+            'name': 'Single Node Course',
+            'node_ids': [(4, self.node_a.id)],
+        })
+        action_single = course_single.action_view_nodes()
+        self.assertEqual(action_single.get('res_id'), self.node_a.id)
+        self.assertEqual(action_single.get('views'), [(False, 'form')])
+
+

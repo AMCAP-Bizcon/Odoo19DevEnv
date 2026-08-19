@@ -41,11 +41,10 @@
             <form string="Course">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="%(kms_mastery.kms_node_action)d"
-                                type="action"
+                        <button name="action_view_nodes"
+                                type="object"
                                 class="oe_stat_button"
-                                icon="fa-sitemap"
-                                domain="[('id', 'in', node_ids)]">
+                                icon="fa-sitemap">
                             <field name="node_count" widget="statinfo" string="Nodes"/>
                         </button>
                     </div>
