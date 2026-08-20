@@ -40,12 +40,29 @@
         <field name="arch" type="xml">
             <form string="Course">
                 <sheet>
+                    <field name="is_instructor" invisible="1"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_nodes"
                                 type="object"
                                 class="oe_stat_button"
                                 icon="fa-sitemap">
                             <field name="node_count" widget="statinfo" string="Nodes"/>
+                        </button>
+                        <button name="action_view_milestones"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-flag"
+                                invisible="not is_instructor">
+                            <field name="milestone_count" widget="statinfo" string="Milestones"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-tasks"
+                                name="%(kms_mastery.kms_learner_milestone_action)d"
+                                type="action"
+                                invisible="is_instructor"
+                                context="{'search_default_course_id': id, 'default_course_id': id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">My Milestones</span>
+                            </div>
                         </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
@@ -126,7 +143,7 @@
         </field>
     </record>
 
-    <!-- Course Action -->
+    <!-- Course Action (All Courses) -->
     <record id="kms_course_action" model="ir.actions.act_window">
         <field name="name">Courses</field>
         <field name="res_model">kms.course</field>
@@ -139,6 +156,23 @@
             <p>
                 Courses group knowledge nodes into structured learning paths
                 with enrolled learners and milestone assessments.
+            </p>
+        </field>
+    </record>
+
+    <!-- My Courses Action (Enrolled learners OR assigned instructors) -->
+    <record id="kms_my_course_action" model="ir.actions.act_window">
+        <field name="name">My Courses</field>
+        <field name="res_model">kms.course</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="kms_course_view_search"/>
+        <field name="domain">['|', ('learner_ids', 'in', uid), ('instructor_id', '=', uid)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No courses found
+            </p>
+            <p>
+                Courses you are enrolled in or instructing will appear here.
             </p>
         </field>
     </record>

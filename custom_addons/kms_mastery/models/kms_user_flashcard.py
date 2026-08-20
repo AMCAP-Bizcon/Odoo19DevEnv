@@ -35,6 +35,11 @@ class KmsUserFlashcard(models.Model):
         ondelete='cascade',
         index=True,
     )
+    node_id = fields.Many2one(
+        related='flashcard_id.node_id',
+        string='Knowledge Node',
+        store=True,
+    )
     front = fields.Html(
         string='Front (Question)',
         related='flashcard_id.front',

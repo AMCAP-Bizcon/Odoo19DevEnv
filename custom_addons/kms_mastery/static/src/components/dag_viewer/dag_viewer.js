@@ -4,6 +4,7 @@ import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl
 import { registry } from "@web/core/registry";
 import { user } from "@web/core/user";
 import { useService } from "@web/core/utils/hooks";
+import { cookie } from "@web/core/browser/cookie";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
 
 /**
@@ -60,6 +61,20 @@ export class DagViewer extends Component {
         );
     }
 
+    get isMyNodesOnly() {
+        return Boolean(
+            this.props.action?.params?.my_nodes_only ||
+            this.props.action?.context?.my_nodes_only
+        );
+    }
+
+    get title() {
+        if (this.props.action?.name) {
+            return this.props.action.name;
+        }
+        return this.isMyNodesOnly ? "My Knowledge DAG" : "Knowledge DAG";
+    }
+
     async _init() {
         await this._loadData();
         this._initSimulation();
@@ -75,12 +90,27 @@ export class DagViewer extends Component {
 
     async _loadData() {
         const courseId = this.courseId;
+        const isMyNodesOnly = this.isMyNodesOnly;
+        let nodeDomain = [];
+
+        if (courseId) {
+            const courseNodeIds = await this._getCourseNodeIds(courseId);
+            nodeDomain = [["id", "in", courseNodeIds]];
+        } else if (isMyNodesOnly) {
+            const uid = this._getCurrentUserId();
+            const userCourses = await this.orm.searchRead(
+                "kms.course",
+                ["|", ["learner_ids", "in", uid], ["instructor_id", "=", uid]],
+                ["node_ids"]
+            );
+            const myNodeIds = [...new Set(userCourses.flatMap((c) => c.node_ids))];
+            nodeDomain = [["id", "in", myNodeIds]];
+        }
+
         // Load nodes
         const nodes = await this.orm.searchRead(
             "kms.node",
-            courseId
-                ? [["id", "in", await this._getCourseNodeIds(courseId)]]
-                : [],
+            nodeDomain,
             ["id", "name", "prerequisite_ids", "dependent_ids"]
         );
 
@@ -97,6 +127,7 @@ export class DagViewer extends Component {
         }
 
         // Build node and edge data
+        const nodeIds = new Set(nodes.map((n) => n.id));
         const nodeData = nodes.map((n, i) => ({
             id: n.id,
             name: n.name,
@@ -114,10 +145,12 @@ export class DagViewer extends Component {
         const edgeData = [];
         for (const node of nodes) {
             for (const prereqId of node.prerequisite_ids) {
-                edgeData.push({
-                    source: prereqId,
-                    target: node.id,
-                });
+                if (nodeIds.has(prereqId)) {
+                    edgeData.push({
+                        source: prereqId,
+                        target: node.id,
+                    });
+                }
             }
         }
 
@@ -316,9 +349,11 @@ export class DagViewer extends Component {
         ctx.save();
         ctx.translate(this.pan.x, this.pan.y);
         ctx.scale(this.scale, this.scale);
+        const isDark = cookie.get("color_scheme") === "dark";
+        const edgeColor = isDark ? "#64748b" : "#94a3b8";
 
         // Draw edges (arrows)
-        ctx.strokeStyle = "#94a3b8";
+        ctx.strokeStyle = edgeColor;
         ctx.lineWidth = 2;
         for (const e of edges) {
             const src = nodeMap[e.source];
@@ -347,23 +382,29 @@ export class DagViewer extends Component {
                 ay - headLen * Math.sin(angle + Math.PI / 6)
             );
             ctx.closePath();
-            ctx.fillStyle = "#94a3b8";
+            ctx.fillStyle = edgeColor;
             ctx.fill();
         }
 
         // Draw nodes
         const nodeRadius = 28;
         const stateColors = {
-            locked: { fill: "#94a3b8", stroke: "#64748b", text: "#fff" },
-            unlocked: { fill: "#3b82f6", stroke: "#1d4ed8", text: "#fff" },
-            mastered: { fill: "#22c55e", stroke: "#15803d", text: "#fff" },
+            locked: isDark 
+                ? { fill: "#475569", stroke: "#334155", text: "#e2e8f0" }
+                : { fill: "#94a3b8", stroke: "#64748b", text: "#fff" },
+            unlocked: isDark
+                ? { fill: "#2563eb", stroke: "#1d4ed8", text: "#fff" }
+                : { fill: "#3b82f6", stroke: "#1d4ed8", text: "#fff" },
+            mastered: isDark
+                ? { fill: "#16a34a", stroke: "#15803d", text: "#fff" }
+                : { fill: "#22c55e", stroke: "#15803d", text: "#fff" },
         };
 
         for (const n of nodes) {
             const colors = stateColors[n.state] || stateColors.locked;
 
             // Shadow
-            ctx.shadowColor = "rgba(0,0,0,0.15)";
+            ctx.shadowColor = isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)";
             ctx.shadowBlur = 8;
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;

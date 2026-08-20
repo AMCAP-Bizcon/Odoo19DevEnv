@@ -39,10 +39,12 @@
         <field name="arch" type="xml">
             <form string="Knowledge Node">
                 <sheet>
+                    <field name="is_instructor" invisible="1"/>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" icon="fa-question-circle"
                                 name="%(kms_mastery.kms_quiz_question_action)d"
                                 type="action"
+                                invisible="not is_instructor"
                                 groups="kms_mastery.group_kms_instructor"
                                 context="{'default_node_id': id, 'search_default_node_id': id}">
                             <field name="quiz_question_count" widget="statinfo" string="Questions"/>
@@ -50,9 +52,28 @@
                         <button class="oe_stat_button" icon="fa-clone"
                                 name="%(kms_mastery.kms_flashcard_action)d"
                                 type="action"
+                                invisible="not is_instructor"
                                 groups="kms_mastery.group_kms_instructor"
                                 context="{'default_node_id': id, 'search_default_node_id': id}">
                             <field name="flashcard_count" widget="statinfo" string="Flashcards"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-pencil-square-o"
+                                name="%(kms_mastery.action_kms_quiz_wizard)d"
+                                type="action"
+                                invisible="is_instructor"
+                                context="{'default_node_id': id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Take Quiz</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-clone"
+                                name="%(kms_mastery.kms_user_flashcard_action)d"
+                                type="action"
+                                invisible="is_instructor"
+                                context="{'search_default_node_id': id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Review Flashcards</span>
+                            </div>
                         </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>

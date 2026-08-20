@@ -131,3 +131,15 @@ class TestQuizWizard(TransactionCase):
         # Verify user node remains unlocked
         self.assertEqual(self.user_node.state, 'unlocked')
         self.assertEqual(self.user_node.best_quiz_score, 0.0)
+
+    def test_wizard_default_get_with_default_node_id(self):
+        """Wizard should resolve user_node_id and populate questions when given default_node_id."""
+        Wizard = self.env['kms.quiz.wizard'].with_user(self.learner)
+        defaults = Wizard.with_context(default_node_id=self.node.id).default_get([
+            'user_node_id', 'line_ids'
+        ])
+        self.assertEqual(defaults.get('user_node_id'), self.user_node.id)
+        lines = defaults.get('line_ids', [])
+        self.assertEqual(len(lines), 2)
+        question_ids = {line[2]['question_id'] for line in lines}
+        self.assertEqual(question_ids, {self.q1.id, self.q2.id})

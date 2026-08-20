@@ -7,7 +7,7 @@
             <div class="kms_dag_header d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-white">
                 <h4 class="mb-0">
                     <i class="fa fa-sitemap me-2 text-primary"/>
-                    Knowledge DAG
+                    <t t-esc="title"/>
                 </h4>
                 <div class="kms_dag_legend d-flex gap-3 align-items-center">
                     <span class="d-flex align-items-center gap-1">
@@ -34,11 +34,20 @@
                         </div>
                     </div>
                 </t>
+                <t t-elif="state.nodes.length === 0">
+                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                        <div class="text-center p-4">
+                            <i class="fa fa-sitemap fa-3x mb-3 text-secondary"/>
+                            <p class="fs-5 fw-semibold mb-1">No knowledge nodes found</p>
+                            <p class="text-muted small">Enroll in courses or create nodes to view the knowledge graph.</p>
+                        </div>
+                    </div>
+                </t>
                 <canvas t-ref="dagCanvas"
                         class="kms_dag_canvas w-100 h-100"
-                        t-att-class="{'d-none': state.loading}"
+                        t-att-class="{'d-none': state.loading || state.nodes.length === 0}"
                         style="cursor: grab;"/>
-                <div class="kms_dag_hint position-absolute bottom-0 end-0 p-2 text-muted small">
+                <div t-if="state.nodes.length > 0" class="kms_dag_hint position-absolute bottom-0 end-0 p-2 text-muted small">
                     <i class="fa fa-info-circle me-1"/>
                     Drag to move nodes • Double-click to open • Scroll to zoom • Right-drag to pan
                 </div>

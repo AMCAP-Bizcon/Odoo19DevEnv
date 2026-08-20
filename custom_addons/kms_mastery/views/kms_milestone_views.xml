@@ -86,12 +86,14 @@
             <search string="Search Submissions">
                 <field name="user_id"/>
                 <field name="milestone_id"/>
+                <field name="course_id"/>
                 <field name="state"/>
                 <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
                 <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
                 <filter string="Passed" name="passed" domain="[('state', '=', 'passed')]"/>
                 <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
                 <group>
+                    <filter string="Course" name="group_course" context="{'group_by': 'course_id'}"/>
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Learner" name="group_user" context="{'group_by': 'user_id'}"/>
                     <filter string="Milestone" name="group_milestone" context="{'group_by': 'milestone_id'}"/>
@@ -181,6 +183,15 @@
         <field name="res_model">kms.user.milestone</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="kms_user_milestone_view_search"/>
+    </record>
+
+    <!-- Learner Milestone Action (filtered to current user) -->
+    <record id="kms_learner_milestone_action" model="ir.actions.act_window">
+        <field name="name">My Milestones</field>
+        <field name="res_model">kms.user.milestone</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_user_milestone_view_search"/>
+        <field name="domain">[('user_id', '=', uid)]</field>
     </record>
 
 </odoo>
