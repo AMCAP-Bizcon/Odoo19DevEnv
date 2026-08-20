@@ -4,6 +4,7 @@ import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl
 import { registry } from "@web/core/registry";
 import { user } from "@web/core/user";
 import { useService } from "@web/core/utils/hooks";
+import { cookie } from "@web/core/browser/cookie";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
 
 /**
@@ -316,9 +317,11 @@ export class DagViewer extends Component {
         ctx.save();
         ctx.translate(this.pan.x, this.pan.y);
         ctx.scale(this.scale, this.scale);
+        const isDark = cookie.get("color_scheme") === "dark";
+        const edgeColor = isDark ? "#64748b" : "#94a3b8";
 
         // Draw edges (arrows)
-        ctx.strokeStyle = "#94a3b8";
+        ctx.strokeStyle = edgeColor;
         ctx.lineWidth = 2;
         for (const e of edges) {
             const src = nodeMap[e.source];
@@ -347,23 +350,29 @@ export class DagViewer extends Component {
                 ay - headLen * Math.sin(angle + Math.PI / 6)
             );
             ctx.closePath();
-            ctx.fillStyle = "#94a3b8";
+            ctx.fillStyle = edgeColor;
             ctx.fill();
         }
 
         // Draw nodes
         const nodeRadius = 28;
         const stateColors = {
-            locked: { fill: "#94a3b8", stroke: "#64748b", text: "#fff" },
-            unlocked: { fill: "#3b82f6", stroke: "#1d4ed8", text: "#fff" },
-            mastered: { fill: "#22c55e", stroke: "#15803d", text: "#fff" },
+            locked: isDark 
+                ? { fill: "#475569", stroke: "#334155", text: "#e2e8f0" }
+                : { fill: "#94a3b8", stroke: "#64748b", text: "#fff" },
+            unlocked: isDark
+                ? { fill: "#2563eb", stroke: "#1d4ed8", text: "#fff" }
+                : { fill: "#3b82f6", stroke: "#1d4ed8", text: "#fff" },
+            mastered: isDark
+                ? { fill: "#16a34a", stroke: "#15803d", text: "#fff" }
+                : { fill: "#22c55e", stroke: "#15803d", text: "#fff" },
         };
 
         for (const n of nodes) {
             const colors = stateColors[n.state] || stateColors.locked;
 
             // Shadow
-            ctx.shadowColor = "rgba(0,0,0,0.15)";
+            ctx.shadowColor = isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)";
             ctx.shadowBlur = 8;
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;

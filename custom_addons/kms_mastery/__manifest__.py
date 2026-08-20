@@ -41,6 +41,10 @@ Mastery Learning Knowledge Management System
     'assets': {
         'web.assets_backend': [
             'kms_mastery/static/src/**/*',
+            ('remove', 'kms_mastery/static/src/**/*.dark.scss'),
+        ],
+        'web.assets_web_dark': [
+            'kms_mastery/static/src/**/*.dark.scss',
         ],
     },
     'installable': True,

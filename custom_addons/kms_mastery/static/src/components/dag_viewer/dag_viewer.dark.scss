@@ -1,0 +1,36 @@
+// KMS Mastery - DAG Viewer Dark Mode Styles
+
+.kms_dag_header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+
+    h4 {
+        color: #f8fafc;
+    }
+}
+
+.kms_dag_legend {
+    color: #94a3b8;
+}
+
+.kms_legend_locked {
+    background-color: #475569;
+    border-color: #334155;
+}
+
+.kms_legend_unlocked {
+    background-color: #2563eb;
+    border-color: #1d4ed8;
+}
+
+.kms_legend_mastered {
+    background-color: #16a34a;
+    border-color: #15803d;
+}
+
+.kms_dag_canvas_wrapper {
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+}
+
+.kms_dag_hint {
+    color: #cbd5e1;
+}
