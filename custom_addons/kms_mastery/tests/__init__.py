@@ -5,3 +5,4 @@ from . import test_mastery_logic
 from . import test_fsrs_logic
 from . import test_quiz_wizard
 from . import test_security_access
+from . import test_menu_navigation

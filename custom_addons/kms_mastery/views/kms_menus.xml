@@ -10,109 +10,85 @@
               web_icon="kms_mastery,static/description/icon.png"
               sequence="100"/>
 
-    <!-- DAG Viewer Client Action -->
+    <!-- ============================================================ -->
+    <!--                    DAG VIEWER ACTIONS                         -->
+    <!-- ============================================================ -->
+
+    <!-- DAG Viewer Client Action (Full Graph) -->
     <record id="kms_dag_viewer_action" model="ir.actions.client">
         <field name="name">Knowledge DAG</field>
         <field name="tag">kms_mastery.dag_viewer</field>
     </record>
 
+    <!-- DAG Viewer Client Action (My Graph) -->
+    <record id="kms_my_dag_viewer_action" model="ir.actions.client">
+        <field name="name">My Knowledge DAG</field>
+        <field name="tag">kms_mastery.dag_viewer</field>
+        <field name="params" eval="{'my_nodes_only': True}"/>
+        <field name="context">{'my_nodes_only': True}</field>
+    </record>
+
     <!-- ============================================================ -->
-    <!--                   INSTRUCTOR MENUS                            -->
+    <!--                       COURSES MENUS                           -->
     <!-- ============================================================ -->
 
-    <menuitem id="kms_instructor_menu"
-              name="Instructor"
-              parent="kms_root_menu"
-              groups="kms_mastery.group_kms_instructor"
-              sequence="10"/>
-
-    <menuitem id="kms_instructor_courses_menu"
+    <menuitem id="kms_courses_menu"
               name="Courses"
-              parent="kms_instructor_menu"
-              action="kms_course_action"
-              sequence="10"/>
-
-    <menuitem id="kms_instructor_nodes_menu"
-              name="Knowledge Nodes"
-              parent="kms_instructor_menu"
-              action="kms_node_action"
-              sequence="20"/>
-
-    <menuitem id="kms_instructor_dag_menu"
-              name="DAG Viewer"
-              parent="kms_instructor_menu"
-              action="kms_dag_viewer_action"
-              sequence="25"/>
-
-    <menuitem id="kms_instructor_questions_menu"
-              name="Quiz Questions"
-              parent="kms_instructor_menu"
-              action="kms_quiz_question_action"
-              sequence="30"/>
-
-    <menuitem id="kms_instructor_flashcards_menu"
-              name="Flashcards"
-              parent="kms_instructor_menu"
-              action="kms_flashcard_action"
-              sequence="40"/>
-
-    <menuitem id="kms_instructor_milestones_menu"
-              name="Milestones"
-              parent="kms_instructor_menu"
-              action="kms_milestone_action"
-              sequence="50"/>
-
-    <menuitem id="kms_instructor_attempts_menu"
-              name="Quiz Attempts"
-              parent="kms_instructor_menu"
-              action="kms_quiz_attempt_action"
-              sequence="60"/>
-
-    <menuitem id="kms_instructor_submissions_menu"
-              name="Milestone Submissions"
-              parent="kms_instructor_menu"
-              action="kms_user_milestone_action"
-              sequence="70"/>
-
-    <!-- ============================================================ -->
-    <!--                    LEARNER MENUS                               -->
-    <!-- ============================================================ -->
-
-    <menuitem id="kms_learner_menu"
-              name="Learner"
               parent="kms_root_menu"
-              groups="kms_mastery.group_kms_learner"
-              sequence="20"/>
-
-    <menuitem id="kms_learner_courses_menu"
-              name="My Courses"
-              parent="kms_learner_menu"
-              action="kms_learner_course_action"
               sequence="10"/>
 
-    <menuitem id="kms_learner_progress_menu"
-              name="My Progress"
-              parent="kms_learner_menu"
-              action="kms_user_node_action"
+    <menuitem id="kms_my_courses_menu"
+              name="My Courses"
+              parent="kms_courses_menu"
+              action="kms_my_course_action"
+              sequence="10"/>
+
+    <menuitem id="kms_all_courses_menu"
+              name="All Courses"
+              parent="kms_courses_menu"
+              action="kms_course_action"
               sequence="20"/>
 
-    <menuitem id="kms_learner_dag_menu"
-              name="Knowledge DAG"
-              parent="kms_learner_menu"
-              action="kms_dag_viewer_action"
-              sequence="25"/>
+    <!-- ============================================================ -->
+    <!--                   KNOWLEDGE GRAPH MENUS                       -->
+    <!-- ============================================================ -->
 
-    <menuitem id="kms_learner_flashcard_menu"
-              name="Flashcard Review"
-              parent="kms_learner_menu"
-              action="kms_user_flashcard_action"
+    <menuitem id="kms_dag_menu"
+              name="Knowledge Graph"
+              parent="kms_root_menu"
+              sequence="20"/>
+
+    <menuitem id="kms_my_dag_menu"
+              name="My Graph"
+              parent="kms_dag_menu"
+              action="kms_my_dag_viewer_action"
+              sequence="10"/>
+
+    <menuitem id="kms_full_dag_menu"
+              name="Full Graph"
+              parent="kms_dag_menu"
+              action="kms_dag_viewer_action"
+              sequence="20"/>
+
+    <!-- ============================================================ -->
+    <!--                 PERFORMANCE REPORTS MENUS                     -->
+    <!-- ============================================================ -->
+
+    <menuitem id="kms_reports_menu"
+              name="Performance Reports"
+              parent="kms_root_menu"
               sequence="30"/>
 
-    <menuitem id="kms_learner_milestones_menu"
-              name="My Milestones"
-              parent="kms_learner_menu"
-              action="kms_learner_milestone_action"
-              sequence="40"/>
+    <menuitem id="kms_quiz_attempts_menu"
+              name="Quiz Attempts"
+              parent="kms_reports_menu"
+              action="kms_quiz_attempt_action"
+              sequence="10"/>
+
+    <menuitem id="kms_milestone_submissions_menu"
+              name="Milestone Submissions"
+              parent="kms_reports_menu"
+              action="kms_user_milestone_action"
+              sequence="20"/>
 
 </odoo>
-

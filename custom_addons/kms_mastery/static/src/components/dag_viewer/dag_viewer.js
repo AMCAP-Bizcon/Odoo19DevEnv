@@ -61,6 +61,20 @@ export class DagViewer extends Component {
         );
     }
 
+    get isMyNodesOnly() {
+        return Boolean(
+            this.props.action?.params?.my_nodes_only ||
+            this.props.action?.context?.my_nodes_only
+        );
+    }
+
+    get title() {
+        if (this.props.action?.name) {
+            return this.props.action.name;
+        }
+        return this.isMyNodesOnly ? "My Knowledge DAG" : "Knowledge DAG";
+    }
+
     async _init() {
         await this._loadData();
         this._initSimulation();
@@ -76,12 +90,27 @@ export class DagViewer extends Component {
 
     async _loadData() {
         const courseId = this.courseId;
+        const isMyNodesOnly = this.isMyNodesOnly;
+        let nodeDomain = [];
+
+        if (courseId) {
+            const courseNodeIds = await this._getCourseNodeIds(courseId);
+            nodeDomain = [["id", "in", courseNodeIds]];
+        } else if (isMyNodesOnly) {
+            const uid = this._getCurrentUserId();
+            const userCourses = await this.orm.searchRead(
+                "kms.course",
+                ["|", ["learner_ids", "in", uid], ["instructor_id", "=", uid]],
+                ["node_ids"]
+            );
+            const myNodeIds = [...new Set(userCourses.flatMap((c) => c.node_ids))];
+            nodeDomain = [["id", "in", myNodeIds]];
+        }
+
         // Load nodes
         const nodes = await this.orm.searchRead(
             "kms.node",
-            courseId
-                ? [["id", "in", await this._getCourseNodeIds(courseId)]]
-                : [],
+            nodeDomain,
             ["id", "name", "prerequisite_ids", "dependent_ids"]
         );
 
@@ -98,6 +127,7 @@ export class DagViewer extends Component {
         }
 
         // Build node and edge data
+        const nodeIds = new Set(nodes.map((n) => n.id));
         const nodeData = nodes.map((n, i) => ({
             id: n.id,
             name: n.name,
@@ -115,10 +145,12 @@ export class DagViewer extends Component {
         const edgeData = [];
         for (const node of nodes) {
             for (const prereqId of node.prerequisite_ids) {
-                edgeData.push({
-                    source: prereqId,
-                    target: node.id,
-                });
+                if (nodeIds.has(prereqId)) {
+                    edgeData.push({
+                        source: prereqId,
+                        target: node.id,
+                    });
+                }
             }
         }
 

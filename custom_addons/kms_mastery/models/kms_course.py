@@ -53,6 +53,14 @@ class KmsCourse(models.Model):
         string='Learner Count',
         compute='_compute_learner_count',
     )
+    milestone_count = fields.Integer(
+        string='Milestone Count',
+        compute='_compute_milestone_count',
+    )
+    is_instructor = fields.Boolean(
+        compute='_compute_is_instructor',
+        default=lambda self: self.env.user.has_group('kms_mastery.group_kms_instructor'),
+    )
 
     @api.depends('node_ids')
     def _compute_node_count(self):
@@ -63,6 +71,16 @@ class KmsCourse(models.Model):
     def _compute_learner_count(self):
         for rec in self:
             rec.learner_count = len(rec.learner_ids)
+
+    @api.depends('milestone_ids')
+    def _compute_milestone_count(self):
+        for rec in self:
+            rec.milestone_count = len(rec.milestone_ids)
+
+    def _compute_is_instructor(self):
+        has_group = self.env.user.has_group('kms_mastery.group_kms_instructor')
+        for rec in self:
+            rec.is_instructor = has_group
 
     def action_view_nodes(self):
         """Open the list or form view of nodes associated with this course."""
@@ -75,6 +93,20 @@ class KmsCourse(models.Model):
         if len(self.node_ids) == 1:
             action['views'] = [(False, 'form')]
             action['res_id'] = self.node_ids.id
+        return action
+
+    def action_view_milestones(self):
+        """Open the list or form view of milestones associated with this course."""
+        self.ensure_one()
+        action = self.env['ir.actions.actions']._for_xml_id('kms_mastery.kms_milestone_action')
+        action['domain'] = [('course_id', '=', self.id)]
+        action['context'] = {
+            'default_course_id': self.id,
+            'search_default_course_id': self.id,
+        }
+        if len(self.milestone_ids) == 1:
+            action['views'] = [(False, 'form')]
+            action['res_id'] = self.milestone_ids.id
         return action
 
     def _init_learner_progress(self, user):

@@ -84,6 +84,10 @@ class KmsNode(models.Model):
         string='Flashcard Count',
         compute='_compute_flashcard_count',
     )
+    is_instructor = fields.Boolean(
+        compute='_compute_is_instructor',
+        default=lambda self: self.env.user.has_group('kms_mastery.group_kms_instructor'),
+    )
 
     @api.depends('quiz_question_ids')
     def _compute_quiz_question_count(self):
@@ -94,6 +98,11 @@ class KmsNode(models.Model):
     def _compute_flashcard_count(self):
         for rec in self:
             rec.flashcard_count = len(rec.sudo().flashcard_ids)
+
+    def _compute_is_instructor(self):
+        has_group = self.env.user.has_group('kms_mastery.group_kms_instructor')
+        for rec in self:
+            rec.is_instructor = has_group
 
     @api.constrains('prerequisite_ids')
     def _check_no_cyclic_dependencies(self):

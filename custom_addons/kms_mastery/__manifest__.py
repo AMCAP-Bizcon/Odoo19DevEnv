@@ -29,10 +29,10 @@ Mastery Learning Knowledge Management System
         'wizard/kms_quiz_wizard_views.xml',
         'views/kms_quiz_views.xml',
         'views/kms_flashcard_views.xml',
-        'views/kms_node_views.xml',
         'views/kms_milestone_views.xml',
-        'views/kms_course_views.xml',
         'views/kms_learner_views.xml',
+        'views/kms_course_views.xml',
+        'views/kms_node_views.xml',
         'views/kms_menus.xml',
     ],
     'demo': [

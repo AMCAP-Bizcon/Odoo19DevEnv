@@ -42,6 +42,25 @@ class KmsQuizWizard(models.TransientModel):
         if not user_node_id and self.env.context.get('active_model') == 'kms.user.node':
             user_node_id = self.env.context.get('active_id')
 
+        if not user_node_id:
+            node_id = res.get('node_id') or self.env.context.get('default_node_id')
+            if not node_id and self.env.context.get('active_model') == 'kms.node':
+                node_id = self.env.context.get('active_id')
+            if node_id:
+                user_node = self.env['kms.user.node'].search([
+                    ('user_id', '=', self.env.uid),
+                    ('node_id', '=', node_id),
+                ], limit=1)
+                if not user_node:
+                    node = self.env['kms.node'].browse(node_id)
+                    state = 'unlocked' if not node.prerequisite_ids else 'locked'
+                    user_node = self.env['kms.user.node'].create({
+                        'user_id': self.env.uid,
+                        'node_id': node_id,
+                        'state': state,
+                    })
+                user_node_id = user_node.id
+
         if user_node_id:
             user_node = self.env['kms.user.node'].browse(user_node_id)
             if user_node.exists():
