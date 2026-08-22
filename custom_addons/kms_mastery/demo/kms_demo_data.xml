@@ -26,6 +26,16 @@
             ]"/>
         </record>
 
+        <record id="demo_admin_user" model="res.users">
+            <field name="name">KMS Admin</field>
+            <field name="login">kms_admin</field>
+            <field name="password">kms_admin</field>
+            <field name="group_ids" eval="[
+                (4, ref('base.group_user')),
+                (4, ref('kms_mastery.group_kms_admin')),
+            ]"/>
+        </record>
+
         <!-- ============================================================ -->
         <!--                   KNOWLEDGE NODES (Linear DAG)                -->
         <!-- ============================================================ -->

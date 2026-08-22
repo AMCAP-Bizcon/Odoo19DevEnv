@@ -20,6 +20,7 @@ class TestSecurityAccess(TransactionCase):
         # Create learner user with group_kms_learner
         cls.learner_group = cls.env.ref('kms_mastery.group_kms_learner')
         cls.instructor_group = cls.env.ref('kms_mastery.group_kms_instructor')
+        cls.admin_group = cls.env.ref('kms_mastery.group_kms_admin')
 
         cls.learner = cls.env['res.users'].create({
             'name': 'Test Security Learner',
@@ -31,6 +32,12 @@ class TestSecurityAccess(TransactionCase):
             'name': 'Test Security Instructor',
             'login': 'test_sec_instructor',
             'group_ids': [(6, 0, [cls.instructor_group.id, cls.env.ref('base.group_user').id])],
+        })
+
+        cls.admin = cls.env['res.users'].create({
+            'name': 'Test Security Admin',
+            'login': 'test_sec_admin',
+            'group_ids': [(6, 0, [cls.admin_group.id, cls.env.ref('base.group_user').id])],
         })
 
         # Create Nodes: Root (A) -> Dependent (B)
@@ -107,6 +114,20 @@ class TestSecurityAccess(TransactionCase):
             'user_id': cls.learner.id,
             'node_id': cls.node_b.id,
             'state': 'locked',
+        })
+
+        # Create milestone and user milestone
+        cls.milestone = cls.env['kms.milestone'].create({
+            'name': 'Test Milestone',
+            'course_id': cls.course.id,
+            'node_ids': [(4, cls.node_a.id)],
+        })
+        cls.user_milestone = cls.env['kms.user.milestone'].create({
+            'user_id': cls.learner.id,
+            'milestone_id': cls.milestone.id,
+            'state': 'passed',
+            'submission_url': 'https://example.com/project',
+            'grade_date': '2026-08-20 10:00:00',
         })
 
     def test_learner_cannot_read_is_correct_field(self):
@@ -207,3 +228,91 @@ class TestSecurityAccess(TransactionCase):
         res = wizard.action_submit()
         self.assertEqual(res['params']['type'], 'success')
         self.assertEqual(self.un_a.state, 'mastered')
+
+    def test_admin_group_hierarchy(self):
+        """Administrator group must imply Instructor group which implies Learner group."""
+        self.assertIn(self.instructor_group, self.admin_group.implied_ids)
+        self.assertIn(self.learner_group, self.instructor_group.implied_ids)
+        self.assertTrue(self.admin.has_group('kms_mastery.group_kms_admin'))
+        self.assertTrue(self.admin.has_group('kms_mastery.group_kms_instructor'))
+        self.assertTrue(self.admin.has_group('kms_mastery.group_kms_learner'))
+
+    def test_admin_reset_user_flashcard_progress(self):
+        """Admin can reset a user flashcard's progress back to initial state."""
+        # Create and review flashcard
+        user_fc = self.env['kms.user.flashcard'].create({
+            'user_id': self.learner.id,
+            'flashcard_id': self.fc_a.id,
+            'state': 'review',
+            'difficulty': 3.2,
+            'stability': 15.0,
+            'reps': 5,
+            'lapses': 1,
+        })
+        self.assertEqual(user_fc.state, 'review')
+        self.assertEqual(user_fc.reps, 5)
+
+        # Admin resets flashcard progress
+        user_fc.with_user(self.admin).action_reset_progress()
+        self.assertEqual(user_fc.state, 'new')
+        self.assertEqual(user_fc.difficulty, 5.0)
+        self.assertEqual(user_fc.stability, 0.0)
+        self.assertEqual(user_fc.reps, 0)
+        self.assertEqual(user_fc.lapses, 0)
+        self.assertFalse(user_fc.last_review_date)
+
+    def test_admin_reset_user_node_progress(self):
+        """Admin can reset a user node's progress and lock un-mastered dependents."""
+        # Master node A first
+        self.un_a.write({
+            'state': 'mastered',
+            'best_quiz_score': 1.0,
+            'mastered_date': '2026-08-20 12:00:00',
+        })
+        # Unlock node B as a dependent
+        self.un_b.write({'state': 'unlocked'})
+
+        # Admin resets node A progress
+        self.un_a.with_user(self.admin).action_reset_progress()
+        self.assertEqual(self.un_a.state, 'unlocked')  # Root node -> unlocked
+        self.assertEqual(self.un_a.best_quiz_score, 0.0)
+        self.assertFalse(self.un_a.mastered_date)
+
+        # Node B should be re-locked since prerequisite A is no longer mastered
+        self.un_b.invalidate_recordset()
+        self.assertEqual(self.un_b.state, 'locked')
+
+    def test_admin_reset_user_milestone_progress(self):
+        """Admin can reset a user milestone submission back to initial pending state."""
+        self.assertEqual(self.user_milestone.state, 'passed')
+        self.assertTrue(self.user_milestone.submission_url)
+        self.assertTrue(self.user_milestone.grade_date)
+
+        # Admin resets milestone progress
+        self.user_milestone.with_user(self.admin).action_reset_progress()
+        self.assertEqual(self.user_milestone.state, 'pending')
+        self.assertFalse(self.user_milestone.submission_url)
+        self.assertFalse(self.user_milestone.grade_date)
+        self.assertFalse(self.user_milestone.instructor_feedback)
+
+    def test_admin_bulk_reset_progress(self):
+        """Admin can reset multiple records in bulk via action_reset_progress."""
+        # Create multiple flashcards
+        fc1 = self.env['kms.user.flashcard'].create({
+            'user_id': self.learner.id,
+            'flashcard_id': self.fc_a.id,
+            'state': 'review',
+            'reps': 3,
+        })
+        fc2 = self.env['kms.user.flashcard'].create({
+            'user_id': self.learner.id,
+            'flashcard_id': self.fc_b.id,
+            'state': 'review',
+            'reps': 4,
+        })
+        records = fc1 | fc2
+        records.with_user(self.admin).action_reset_progress()
+        self.assertEqual(set(records.mapped('state')), {'new'})
+        self.assertEqual(set(records.mapped('reps')), {0})
+
+
