@@ -103,7 +103,7 @@ class KmsUserFlashcard(models.Model):
         help='Times the card was forgotten (rating = Again).',
     )
     last_review_date = fields.Datetime(string='Last Review Date')
-    next_review_date = fields.Date(string='Next Review Date')
+    next_review_date = fields.Date(string='Next Review Date', default=fields.Date.context_today)
 
     _user_flashcard_unique = models.Constraint(
         'UNIQUE(user_id, flashcard_id)',
@@ -206,3 +206,18 @@ class KmsUserFlashcard(models.Model):
     def action_rate_easy(self):
         """Rate flashcard as Easy (4)."""
         self.action_review(Rating.EASY)
+
+    def action_reset_progress(self):
+        """Reset flashcard progress back to initial 'new' state."""
+        self.write({
+            'state': 'new',
+            'difficulty': 5.0,
+            'stability': 0.0,
+            'elapsed_days': 0,
+            'scheduled_days': 0,
+            'reps': 0,
+            'lapses': 0,
+            'last_review_date': False,
+            'next_review_date': fields.Date.context_today(self),
+        })
+

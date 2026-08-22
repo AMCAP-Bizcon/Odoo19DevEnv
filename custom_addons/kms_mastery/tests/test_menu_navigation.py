@@ -64,8 +64,13 @@ class TestMenuNavigation(TransactionCase):
         self.assertIn('my_nodes_only', str(my_action.params) + str(my_action.context))
 
     def test_performance_reports_submenus_and_actions(self):
-        """Verify Performance Reports submenus: Quiz Attempts and Milestone Submissions."""
+        """Verify Performance Reports submenus: Learning Progress, Quiz Attempts, Milestone Submissions, Flashcard Reviews."""
         reports_menu = self.env.ref('kms_mastery.kms_reports_menu')
+
+        learning_progress_menu = self.env.ref('kms_mastery.kms_user_node_report_menu')
+        self.assertTrue(learning_progress_menu)
+        self.assertEqual(learning_progress_menu.parent_id.id, reports_menu.id)
+        self.assertEqual(learning_progress_menu.action.res_model, 'kms.user.node')
 
         quiz_menu = self.env.ref('kms_mastery.kms_quiz_attempts_menu')
         self.assertTrue(quiz_menu)
@@ -76,6 +81,11 @@ class TestMenuNavigation(TransactionCase):
         self.assertTrue(milestone_menu)
         self.assertEqual(milestone_menu.parent_id.id, reports_menu.id)
         self.assertEqual(milestone_menu.action.res_model, 'kms.user.milestone')
+
+        flashcard_report_menu = self.env.ref('kms_mastery.kms_user_flashcard_report_menu')
+        self.assertTrue(flashcard_report_menu)
+        self.assertEqual(flashcard_report_menu.parent_id.id, reports_menu.id)
+        self.assertEqual(flashcard_report_menu.action.res_model, 'kms.user.flashcard')
 
     def test_user_flashcard_node_id_relation(self):
         """Verify that kms.user.flashcard correctly relates to its knowledge node."""

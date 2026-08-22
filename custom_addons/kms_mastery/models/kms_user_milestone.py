@@ -109,6 +109,17 @@ class KmsUserMilestone(models.Model):
             'grade_date': False,
         })
 
+    def action_reset_progress(self):
+        """Reset milestone submission back to initial pending state, clearing submission data and grades."""
+        self.write({
+            'state': 'pending',
+            'submission_url': False,
+            'submission_file_ids': [(5, 0, 0)],
+            'submission_date': False,
+            'grade_date': False,
+            'instructor_feedback': False,
+        })
+
     @api.model
     def _cron_send_milestone_reminders(self):
         """

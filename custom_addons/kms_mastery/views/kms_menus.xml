@@ -50,6 +50,22 @@
               sequence="20"/>
 
     <!-- ============================================================ -->
+    <!--                     FLASHCARDS MENU                           -->
+    <!-- ============================================================ -->
+    
+    <record id="kms_flashcard_review_client_action" model="ir.actions.client">
+        <field name="name">Flashcard Review</field>
+        <field name="tag">kms_mastery.flashcard_review</field>
+    </record>
+
+    <menuitem id="kms_root_flashcards_menu"
+              name="Flashcards"
+              parent="kms_root_menu"
+              action="kms_flashcard_review_client_action"
+              groups="kms_mastery.group_kms_learner"
+              sequence="15"/>
+
+    <!-- ============================================================ -->
     <!--                   KNOWLEDGE GRAPH MENUS                       -->
     <!-- ============================================================ -->
 
@@ -79,6 +95,13 @@
               parent="kms_root_menu"
               sequence="30"/>
 
+    <menuitem id="kms_user_node_report_menu"
+              name="Learning Progress"
+              parent="kms_reports_menu"
+              action="kms_user_node_report_action"
+              groups="kms_mastery.group_kms_instructor"
+              sequence="5"/>
+
     <menuitem id="kms_quiz_attempts_menu"
               name="Quiz Attempts"
               parent="kms_reports_menu"
@@ -90,5 +113,12 @@
               parent="kms_reports_menu"
               action="kms_user_milestone_action"
               sequence="20"/>
+              
+    <menuitem id="kms_user_flashcard_report_menu"
+              name="Flashcard Reviews"
+              parent="kms_reports_menu"
+              action="kms_user_flashcard_report_action"
+              groups="kms_mastery.group_kms_instructor"
+              sequence="30"/>
 
 </odoo>

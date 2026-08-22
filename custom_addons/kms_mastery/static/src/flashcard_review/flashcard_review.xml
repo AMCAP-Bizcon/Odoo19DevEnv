@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="kms_mastery.FlashcardReview" owl="1">
+        <div class="o_action o_flashcard_review_action h-100 bg-100 d-flex flex-column align-items-center justify-content-center p-4">
+            
+            <t t-if="state.loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </t>
+            
+            <t t-elif="currentCard">
+                <div class="text-muted mb-4 fs-5 fw-bold">
+                    Card <t t-esc="state.currentIndex + 1"/> of <t t-esc="state.cards.length"/>
+                </div>
+                
+                <div class="flashcard-container" t-on-click="flipCard">
+                    <div class="flashcard" t-att-class="{'is-flipped': state.isFlipped}">
+                        
+                        <!-- Front of card -->
+                        <div class="flashcard-face flashcard-front p-5 shadow-sm bg-white rounded-3 d-flex flex-column align-items-center justify-content-center text-center cursor-pointer border">
+                            <div class="card-content fs-3">
+                                <t t-out="currentCard.frontMarkup"/>
+                            </div>
+                            <div t-if="!state.isFlipped" class="text-muted mt-5 small">
+                                <i class="fa fa-hand-pointer-o me-2"></i>Click anywhere to reveal answer
+                            </div>
+                        </div>
+                        
+                        <!-- Back of card -->
+                        <div class="flashcard-face flashcard-back p-5 shadow-sm bg-white rounded-3 d-flex flex-column border">
+                            <div class="card-content fs-4 mb-auto text-center">
+                                <t t-out="currentCard.backMarkup"/>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-3 mt-4 pt-4 border-top" t-if="state.isFlipped">
+                                <button class="btn btn-danger btn-lg px-4 py-2 fw-bold" t-on-click.stop="() => this.rateCard(1)">
+                                    Again
+                                </button>
+                                <button class="btn btn-warning btn-lg px-4 py-2 fw-bold text-white" t-on-click.stop="() => this.rateCard(2)">
+                                    Hard
+                                </button>
+                                <button class="btn btn-primary btn-lg px-4 py-2 fw-bold" t-on-click.stop="() => this.rateCard(3)">
+                                    Good
+                                </button>
+                                <button class="btn btn-success btn-lg px-4 py-2 fw-bold" t-on-click.stop="() => this.rateCard(4)">
+                                    Easy
+                                </button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </t>
+            
+            <t t-else="">
+                <div class="text-center p-5 bg-white rounded-4 shadow-sm border w-100" style="max-width: 600px;">
+                    <i class="fa fa-check-circle text-success mb-3" style="font-size: 6rem;"></i>
+                    <h2 class="mt-4 fw-bold">Done for the day!</h2>
+                    <p class="text-muted lead mt-3">You have reviewed all pending flashcards. Great job!</p>
+                </div>
+            </t>
+            
+        </div>
+    </t>
+</templates>

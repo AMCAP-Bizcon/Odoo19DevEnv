@@ -202,3 +202,41 @@ class KmsUserNode(models.Model):
 
         return attempt
 
+    def action_reset_progress(self):
+        """
+        Reset node progress back to initial state (locked or unlocked based on prerequisites).
+        Also resets quiz score and mastered date, and re-evaluates dependent nodes.
+        """
+        for rec in self:
+            initial_state = 'unlocked'
+            if rec.node_id.prerequisite_ids:
+                mastered_prereqs = self.sudo().search_count([
+                    ('user_id', '=', rec.user_id.id),
+                    ('node_id', 'in', rec.node_id.prerequisite_ids.ids),
+                    ('state', '=', 'mastered'),
+                ])
+                if mastered_prereqs < len(rec.node_id.prerequisite_ids):
+                    initial_state = 'locked'
+
+            rec.write({
+                'state': initial_state,
+                'best_quiz_score': 0.0,
+                'mastered_date': False,
+            })
+
+            # Check dependent nodes - if dependent is unlocked, re-evaluate lock state
+            for dep in rec.node_id.dependent_ids:
+                dep_user_node = self.sudo().search([
+                    ('user_id', '=', rec.user_id.id),
+                    ('node_id', '=', dep.id),
+                ], limit=1)
+                if dep_user_node and dep_user_node.state == 'unlocked':
+                    mastered_count = self.sudo().search_count([
+                        ('user_id', '=', rec.user_id.id),
+                        ('node_id', 'in', dep.prerequisite_ids.ids),
+                        ('state', '=', 'mastered'),
+                    ])
+                    if mastered_count < len(dep.prerequisite_ids):
+                        dep_user_node.write({'state': 'locked'})
+
+

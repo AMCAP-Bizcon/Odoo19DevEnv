@@ -2,7 +2,159 @@
 <odoo>
 
     <!-- ============================================================ -->
-    <!--                   LEARNER-FACING VIEWS                        -->
+    <!--               FLASHCARD REVIEW VIEWS (Learner)                -->
+    <!-- ============================================================ -->
+
+    <!-- User Flashcard Search -->
+    <record id="kms_user_flashcard_view_search" model="ir.ui.view">
+        <field name="name">kms.user.flashcard.view.search</field>
+        <field name="model">kms.user.flashcard</field>
+        <field name="arch" type="xml">
+            <search string="Search Flashcards">
+                <field name="flashcard_id"/>
+                <field name="node_id"/>
+                <field name="user_id"/>
+                <field name="state"/>
+                <filter string="Due Today" name="due_today"
+                        domain="[('next_review_date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="New" name="new" domain="[('state', '=', 'new')]"/>
+                <filter string="In Review" name="review" domain="[('state', '=', 'review')]"/>
+                <group>
+                    <filter string="Learner" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Node" name="group_node" context="{'group_by': 'node_id'}"/>
+                    <filter string="FSRS State" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- User Flashcard List View -->
+    <record id="kms_user_flashcard_view_list" model="ir.ui.view">
+        <field name="name">kms.user.flashcard.view.list</field>
+        <field name="model">kms.user.flashcard</field>
+        <field name="arch" type="xml">
+            <list string="Flashcards" create="false">
+                <field name="user_id" groups="kms_mastery.group_kms_instructor"/>
+                <field name="flashcard_id"/>
+                <field name="node_id"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'new'"
+                       decoration-warning="state in ('learning', 'relearning')"
+                       decoration-success="state == 'review'"/>
+                <field name="difficulty"/>
+                <field name="stability"/>
+                <field name="retrievability" widget="percentage"/>
+                <field name="next_review_date"/>
+                <field name="reps"/>
+                <field name="lapses"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- User Flashcard Form View (Review interface) -->
+    <record id="kms_user_flashcard_view_form" model="ir.ui.view">
+        <field name="name">kms.user.flashcard.view.form</field>
+        <field name="model">kms.user.flashcard</field>
+        <field name="arch" type="xml">
+            <form string="Flashcard Review" create="false">
+                <header>
+                    <button name="action_rate_again" string="Again" type="object"
+                            class="btn-danger"/>
+                    <button name="action_rate_hard" string="Hard" type="object"
+                            class="btn-warning"/>
+                    <button name="action_rate_good" string="Good" type="object"
+                            class="oe_highlight"/>
+                    <button name="action_rate_easy" string="Easy" type="object"
+                            class="btn-success"/>
+                    <button name="action_reset_progress" string="Reset Progress" type="object"
+                            class="btn-secondary"
+                            groups="kms_mastery.group_kms_admin"
+                            confirm="Are you sure you want to reset this flashcard's progress?"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="user_id" readonly="1" groups="kms_mastery.group_kms_instructor"/>
+                            <field name="flashcard_id" readonly="1"/>
+                            <field name="node_id" readonly="1"/>
+                            <field name="state" widget="badge"
+                                    decoration-info="state == 'new'"
+                                    decoration-warning="state in ('learning', 'relearning')"
+                                    decoration-success="state == 'review'"/>
+                        </group>
+                        <group>
+                            <field name="difficulty" readonly="1"/>
+                            <field name="stability" readonly="1"/>
+                            <field name="retrievability" widget="percentage" readonly="1"/>
+                            <field name="reps" readonly="1"/>
+                            <field name="lapses" readonly="1"/>
+                            <field name="next_review_date" readonly="1"/>
+                            <field name="last_review_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Front (Question)" name="front">
+                            <div class="p-3 bg-100 rounded mb-3" style="min-height: 150px;">
+                                <field name="front" readonly="1"/>
+                            </div>
+                        </page>
+                        <page string="Back (Answer)" name="back">
+                            <div class="p-3 bg-100 rounded mb-3" style="min-height: 150px;">
+                                <field name="back" readonly="1"/>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- User Flashcard Action (Learner: Flashcard Review) -->
+    <record id="kms_user_flashcard_action" model="ir.actions.act_window">
+        <field name="name">Flashcard Review</field>
+        <field name="res_model">kms.user.flashcard</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_user_flashcard_view_search"/>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="context">{'search_default_due_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No flashcards due for review
+            </p>
+            <p>
+                Master knowledge nodes to unlock flashcards. Reviews are
+                scheduled automatically using the FSRS-5 algorithm.
+            </p>
+        </field>
+    </record>
+
+    <!-- Instructor Action (Performance Reports: Flashcard Reviews) -->
+    <record id="kms_user_flashcard_report_action" model="ir.actions.act_window">
+        <field name="name">Flashcard Reviews</field>
+        <field name="res_model">kms.user.flashcard</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="kms_user_flashcard_view_search"/>
+        <field name="context">{'search_default_group_user': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No flashcard progress records yet
+            </p>
+        </field>
+    </record>
+
+    <!-- Bulk Reset Progress Action (Administrator: Flashcards) -->
+    <record id="action_server_reset_user_flashcard_progress" model="ir.actions.server">
+        <field name="name">Reset Progress</field>
+        <field name="model_id" ref="model_kms_user_flashcard"/>
+        <field name="binding_model_id" ref="model_kms_user_flashcard"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('kms_mastery.group_kms_admin'))]"/>
+        <field name="state">code</field>
+        <field name="code">records.action_reset_progress()</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--                   LEARNER-FACING VIEWS (Node Progress)       -->
     <!-- ============================================================ -->
 
     <!-- User Node Progress Search -->
@@ -12,11 +164,14 @@
         <field name="arch" type="xml">
             <search string="Search Progress">
                 <field name="node_id"/>
+                <field name="user_id"/>
                 <field name="state"/>
                 <filter string="Locked" name="locked" domain="[('state', '=', 'locked')]"/>
                 <filter string="Unlocked" name="unlocked" domain="[('state', '=', 'unlocked')]"/>
                 <filter string="Mastered" name="mastered" domain="[('state', '=', 'mastered')]"/>
                 <group>
+                    <filter string="Learner" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Knowledge Node" name="group_node" context="{'group_by': 'node_id'}"/>
                     <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
                 </group>
             </search>
@@ -28,7 +183,8 @@
         <field name="name">kms.user.node.view.list</field>
         <field name="model">kms.user.node</field>
         <field name="arch" type="xml">
-            <list string="My Node Progress" create="false">
+            <list string="Node Progress" create="false">
+                <field name="user_id" groups="kms_mastery.group_kms_instructor"/>
                 <field name="node_id"/>
                 <field name="state" widget="badge"
                        decoration-danger="state == 'locked'"
@@ -84,8 +240,22 @@
                             type="action" class="oe_highlight"
                             invisible="state == 'locked'"
                             context="{'default_user_node_id': id}"/>
+                    <button name="action_reset_progress" string="Reset Progress" type="object"
+                            class="btn-secondary"
+                            groups="kms_mastery.group_kms_admin"
+                            confirm="Are you sure you want to reset this user's node progress?"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-clone"
+                                name="%(kms_mastery.kms_user_flashcard_action)d"
+                                type="action"
+                                context="{'search_default_node_id': node_id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Flashcards</span>
+                            </div>
+                        </button>
+                    </div>
                     <group>
                         <group>
                             <field name="node_id" readonly="1"/>
@@ -122,123 +292,29 @@
         </field>
     </record>
 
-    <!-- ============================================================ -->
-    <!--               FLASHCARD REVIEW VIEWS (Learner)                -->
-    <!-- ============================================================ -->
-
-    <!-- User Flashcard Search -->
-    <record id="kms_user_flashcard_view_search" model="ir.ui.view">
-        <field name="name">kms.user.flashcard.view.search</field>
-        <field name="model">kms.user.flashcard</field>
-        <field name="arch" type="xml">
-            <search string="Search Flashcards">
-                <field name="flashcard_id"/>
-                <field name="node_id"/>
-                <field name="state"/>
-                <filter string="Due Today" name="due_today"
-                        domain="[('next_review_date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter string="New" name="new" domain="[('state', '=', 'new')]"/>
-                <filter string="In Review" name="review" domain="[('state', '=', 'review')]"/>
-                <group>
-                    <filter string="Node" name="group_node" context="{'group_by': 'node_id'}"/>
-                    <filter string="FSRS State" name="group_state" context="{'group_by': 'state'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
-    <!-- User Flashcard List View -->
-    <record id="kms_user_flashcard_view_list" model="ir.ui.view">
-        <field name="name">kms.user.flashcard.view.list</field>
-        <field name="model">kms.user.flashcard</field>
-        <field name="arch" type="xml">
-            <list string="My Flashcards" create="false">
-                <field name="flashcard_id"/>
-                <field name="node_id"/>
-                <field name="state" widget="badge"
-                       decoration-info="state == 'new'"
-                       decoration-warning="state in ('learning', 'relearning')"
-                       decoration-success="state == 'review'"/>
-                <field name="difficulty"/>
-                <field name="stability"/>
-                <field name="retrievability" widget="percentage"/>
-                <field name="next_review_date"/>
-                <field name="reps"/>
-                <field name="lapses"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- User Flashcard Form View (Review interface) -->
-    <record id="kms_user_flashcard_view_form" model="ir.ui.view">
-        <field name="name">kms.user.flashcard.view.form</field>
-        <field name="model">kms.user.flashcard</field>
-        <field name="arch" type="xml">
-            <form string="Flashcard Review" create="false">
-                <header>
-                    <button name="action_rate_again" string="Again" type="object"
-                            class="btn-danger"/>
-                    <button name="action_rate_hard" string="Hard" type="object"
-                            class="btn-warning"/>
-                    <button name="action_rate_good" string="Good" type="object"
-                            class="oe_highlight"/>
-                    <button name="action_rate_easy" string="Easy" type="object"
-                            class="btn-success"/>
-                </header>
-                <sheet>
-                    <group>
-                        <group>
-                            <field name="flashcard_id" readonly="1"/>
-                            <field name="node_id" readonly="1"/>
-                            <field name="state" widget="badge"
-                                   decoration-info="state == 'new'"
-                                   decoration-warning="state in ('learning', 'relearning')"
-                                   decoration-success="state == 'review'"/>
-                        </group>
-                        <group>
-                            <field name="difficulty" readonly="1"/>
-                            <field name="stability" readonly="1"/>
-                            <field name="retrievability" widget="percentage" readonly="1"/>
-                            <field name="reps" readonly="1"/>
-                            <field name="lapses" readonly="1"/>
-                            <field name="next_review_date" readonly="1"/>
-                            <field name="last_review_date" readonly="1"/>
-                        </group>
-                    </group>
-                    <notebook>
-                        <page string="Front (Question)" name="front">
-                            <div class="p-3 bg-100 rounded mb-3" style="min-height: 150px;">
-                                <field name="front" readonly="1"/>
-                            </div>
-                        </page>
-                        <page string="Back (Answer)" name="back">
-                            <div class="p-3 bg-100 rounded mb-3" style="min-height: 150px;">
-                                <field name="back" readonly="1"/>
-                            </div>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <!-- User Flashcard Action (Learner: Flashcard Review) -->
-    <record id="kms_user_flashcard_action" model="ir.actions.act_window">
-        <field name="name">Flashcard Review</field>
-        <field name="res_model">kms.user.flashcard</field>
-        <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="kms_user_flashcard_view_search"/>
-        <field name="domain">[('user_id', '=', uid)]</field>
-        <field name="context">{'search_default_due_today': 1}</field>
+    <!-- Learning Progress Action (Instructor/Admin view) -->
+    <record id="kms_user_node_report_action" model="ir.actions.act_window">
+        <field name="name">Learning Progress</field>
+        <field name="res_model">kms.user.node</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="kms_user_node_view_search"/>
+        <field name="context">{'search_default_group_user': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                No flashcards due for review
-            </p>
-            <p>
-                Master knowledge nodes to unlock flashcards. Reviews are
-                scheduled automatically using the FSRS-5 algorithm.
+                No learning progress records found
             </p>
         </field>
+    </record>
+
+    <!-- Bulk Reset Progress Action (Administrator: User Nodes) -->
+    <record id="action_server_reset_user_node_progress" model="ir.actions.server">
+        <field name="name">Reset Progress</field>
+        <field name="model_id" ref="model_kms_user_node"/>
+        <field name="binding_model_id" ref="model_kms_user_node"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('kms_mastery.group_kms_admin'))]"/>
+        <field name="state">code</field>
+        <field name="code">records.action_reset_progress()</field>
     </record>
 
 </odoo>
