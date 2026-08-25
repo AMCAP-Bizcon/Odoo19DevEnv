@@ -38,3 +38,13 @@ access_kms_quiz_wizard_admin,kms.quiz.wizard admin,model_kms_quiz_wizard,kms_mas
 access_kms_quiz_wizard_line_learner,kms.quiz.wizard.line learner,model_kms_quiz_wizard_line,kms_mastery.group_kms_learner,1,1,1,1
 access_kms_quiz_wizard_line_instructor,kms.quiz.wizard.line instructor,model_kms_quiz_wizard_line,kms_mastery.group_kms_instructor,1,1,1,1
 access_kms_quiz_wizard_line_admin,kms.quiz.wizard.line admin,model_kms_quiz_wizard_line,kms_mastery.group_kms_admin,1,1,1,1
+access_kms_ai_generate_wizard_instructor,kms.ai.generate.wizard instructor,model_kms_ai_generate_wizard,kms_mastery.group_kms_instructor,1,1,1,1
+access_kms_ai_generate_wizard_admin,kms.ai.generate.wizard admin,model_kms_ai_generate_wizard,kms_mastery.group_kms_admin,1,1,1,1
+access_kms_ai_generate_node_line_instructor,kms.ai.generate.node.line instructor,model_kms_ai_generate_node_line,kms_mastery.group_kms_instructor,1,1,1,1
+access_kms_ai_generate_node_line_admin,kms.ai.generate.node.line admin,model_kms_ai_generate_node_line,kms_mastery.group_kms_admin,1,1,1,1
+access_kms_ai_generate_flashcard_line_instructor,kms.ai.generate.flashcard.line instructor,model_kms_ai_generate_flashcard_line,kms_mastery.group_kms_instructor,1,1,1,1
+access_kms_ai_generate_flashcard_line_admin,kms.ai.generate.flashcard.line admin,model_kms_ai_generate_flashcard_line,kms_mastery.group_kms_admin,1,1,1,1
+access_kms_ai_generate_question_line_instructor,kms.ai.generate.question.line instructor,model_kms_ai_generate_question_line,kms_mastery.group_kms_instructor,1,1,1,1
+access_kms_ai_generate_question_line_admin,kms.ai.generate.question.line admin,model_kms_ai_generate_question_line,kms_mastery.group_kms_admin,1,1,1,1
+access_kms_ai_generate_answer_line_instructor,kms.ai.generate.answer.line instructor,model_kms_ai_generate_answer_line,kms_mastery.group_kms_instructor,1,1,1,1
+access_kms_ai_generate_answer_line_admin,kms.ai.generate.answer.line admin,model_kms_ai_generate_answer_line,kms_mastery.group_kms_admin,1,1,1,1

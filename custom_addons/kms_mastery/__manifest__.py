@@ -26,7 +26,9 @@ Mastery Learning Knowledge Management System
         'data/mail_template_data.xml',
         'data/ir_cron_data.xml',
         # Views (ordered by action dependency)
+        'views/kms_ai_settings_views.xml',
         'wizard/kms_quiz_wizard_views.xml',
+        'wizard/kms_ai_generate_wizard_views.xml',
         'views/kms_quiz_views.xml',
         'views/kms_flashcard_views.xml',
         'views/kms_milestone_views.xml',

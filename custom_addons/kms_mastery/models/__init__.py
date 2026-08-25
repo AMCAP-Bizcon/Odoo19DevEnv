@@ -10,3 +10,4 @@ from . import kms_milestone
 from . import kms_user_node
 from . import kms_user_flashcard
 from . import kms_user_milestone
+from . import kms_ai_settings

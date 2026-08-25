@@ -87,6 +87,17 @@
               sequence="20"/>
 
     <!-- ============================================================ -->
+    <!--                   AI CONTENT GENERATION                       -->
+    <!-- ============================================================ -->
+
+    <menuitem id="kms_ai_generate_menu"
+              name="AI Generate Content"
+              parent="kms_root_menu"
+              action="kms_ai_generate_wizard_action"
+              groups="kms_mastery.group_kms_instructor"
+              sequence="25"/>
+
+    <!-- ============================================================ -->
     <!--                 PERFORMANCE REPORTS MENUS                     -->
     <!-- ============================================================ -->
 
